@@ -1,0 +1,11 @@
+requests
+requests_oauthlib
+oauthlib
+python-dotenv
+geopandas
+rasterio
+gdal
+pandas
+matplotlib
+jinja2
+weasyprint

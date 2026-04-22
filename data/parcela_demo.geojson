@@ -1,0 +1,37 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "Parcela_A",
+        "nombre": "Finca Norte - Tempranillo",
+        "municipio": "Logroño",
+        "poligono": "12/45",
+        "path_pnoa": "/home/hualde/misCosas/geo/assets/wms/pnoa_Parcela_A.png",
+        "path_ndvi": "/home/hualde/misCosas/geo/assets/raster/Parcela_A_ndvi.png",
+        "path_ndre": "/home/hualde/misCosas/geo/assets/raster/Parcela_A_ndre.png",
+        "path_ndmi": "/home/hualde/misCosas/geo/assets/raster/Parcela_A_ndmi.png"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-2.449, 42.466], [-2.447, 42.466], [-2.447, 42.464], [-2.449, 42.464], [-2.449, 42.466]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "Parcela_B",
+        "nombre": "Finca Sur - Graciano",
+        "municipio": "Logroño",
+        "poligono": "14/02",
+        "path_pnoa": "",
+        "path_ndvi": ""
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-2.452, 42.462], [-2.450, 42.462], [-2.450, 42.460], [-2.452, 42.460], [-2.452, 42.462]]]
+      }
+    }
+  ]
+}
