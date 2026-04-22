@@ -487,6 +487,21 @@ def _ramp_vigor(v: str) -> str:
 """
 
 
+def _ramp_moisture(v: str) -> str:
+    """Fragmento JS: colorea un índice de humedad con alta sensibilidad."""
+    return f"""
+  let v = {v};
+  if (v < -0.10) return [0.7, 0.5, 0.3]; // Muy seco / Suelo (Marrón suave)
+  if (v < -0.05) return [0.85, 0.8, 0.7]; // Seco (Gris cálido)
+  if (v < 0.00) return [0.95, 0.95, 0.95]; // Umbral (Blanco/Gris)
+  if (v < 0.05) return [0.8, 0.95, 0.95]; // Humedad incipiente (Cian pálido)
+  if (v < 0.10) return [0.6, 0.85, 0.9];  // Humedad baja
+  if (v < 0.15) return [0.4, 0.7, 0.85];  // Humedad moderada
+  if (v < 0.25) return [0.2, 0.5, 0.75];  // Humedad alta
+  return [0.05, 0.25, 0.5];              // Humedad muy alta / Agua
+"""
+
+
 EVALSCRIPT_TRUECOLOR = r"""
 //VERSION=3
 function setup() {
@@ -579,7 +594,7 @@ function evaluatePixel(sample) {
   let d = sample.B08 + sample.B11;
   let ndmi = d === 0 ? 0 : (sample.B08 - sample.B11) / d;
 """
-    + _ramp_vigor("ndmi")
+    + _ramp_moisture("ndmi")
     + r"""
 }
 """
