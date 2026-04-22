@@ -92,27 +92,42 @@ def run_sentinel_api(feature_index, parcel_id, from_date, to_date):
     return stats_file
 
 def generate_multi_index_chart(stats_file, parcel_id):
-    """Genera gráfica con NDVI, NDRE y NDMI."""
+    """Genera gráfica con la paleta de colores ATLAS."""
     CHARTS_DIR.mkdir(parents=True, exist_ok=True)
     with open(stats_file, 'r') as f:
         stats_data = json.load(f)
     
     client_stats = stats_data['clients'][parcel_id]
     plt.figure(figsize=(10, 5), dpi=100)
-    plt.style.use('ggplot')
-    colors = {'ndvi': '#2ecc71', 'ndre': '#27ae60', 'ndmi': '#3498db'}
+    
+    # Paleta ATLAS
+    colors = {'ndvi': '#4a5a2a', 'ndre': '#a8772a', 'ndmi': '#6a1f1f'}
+    paper_color = '#ece3d0'
+    ink_color = '#1f1e16'
+    
+    ax = plt.gca()
+    ax.set_facecolor(paper_color)
+    plt.gcf().set_facecolor(paper_color)
     
     for idx in ['ndvi', 'ndre', 'ndmi']:
         if idx in client_stats:
             data = client_stats[idx]['data']
             dates = [datetime.strptime(e['interval']['from'][:10], '%Y-%m-%d') for e in data]
             values = [e['outputs']['index']['bands']['B0']['stats']['mean'] for e in data]
-            plt.plot(dates, values, label=idx.upper(), color=colors[idx], linewidth=2)
+            plt.plot(dates, values, label=idx.upper(), color=colors[idx], linewidth=2.5, marker='o', markersize=4)
 
-    plt.title(f"Evolución Agrometeorológica - {parcel_id}")
-    plt.legend()
+    plt.title(f"EVOLUCIÓN CARTOGRÁFICA — {parcel_id}", fontsize=12, color=ink_color, pad=20, fontfamily='serif')
+    plt.legend(frameon=False, fontsize='small')
+    plt.grid(True, linestyle='--', alpha=0.3, color=ink_color)
+    
+    # Eliminar bordes innecesarios
+    for spine in ax.spines.values():
+        spine.set_color(ink_color)
+        spine.set_alpha(0.2)
+        
+    plt.tight_layout()
     chart_path = CHARTS_DIR / f"evolucion_{parcel_id}.png"
-    plt.savefig(chart_path)
+    plt.savefig(chart_path, facecolor=paper_color)
     plt.close()
     return chart_path
 

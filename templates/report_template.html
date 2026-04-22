@@ -3,313 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Roboto+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
         :root {
-            --brand-primary: #1a5d1a;
-            --brand-secondary: #2ecc71;
-            --bg-light: #f4f7f6;
-            --border-color: #d1d8d6;
-            --text-main: #2c3e50;
+            --paper: #ece3d0;
+            --paper-deep: #e0d4bb;
+            --paper-dark: #2a2a22;
+            --ink: #1f1e16;
+            --ink-soft: #5a5344;
+            --olive: #4a5a2a;
+            --ocher: #a8772a;
+            --wine: #6a1f1f;
+            --rule: rgba(31, 30, 22, 0.25);
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            color: var(--text-main);
             margin: 0; padding: 0;
-            background: white;
-            font-size: 12px;
+            background: #ccc;
+            font-family: 'EB Garamond', Georgia, serif;
+            color: var(--ink);
         }
 
         .page {
-            padding: 30px;
-            page-break-after: always;
+            width: 210mm;
+            height: 296mm;
+            background: var(--paper);
             position: relative;
-        }
-
-        /* Cabecera Premium */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--brand-primary);
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-
-        .logo-box h1 {
-            color: var(--brand-primary);
-            font-size: 24px;
-            margin: 0;
-            letter-spacing: -0.5px;
-        }
-
-        .header-meta {
-            text-align: right;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 10px;
-        }
-
-        /* Secciones */
-        section {
-            margin-bottom: 30px;
-        }
-
-        h2.section-header {
-            background: var(--brand-primary);
-            color: white;
-            padding: 8px 15px;
-            font-size: 14px;
-            text-transform: uppercase;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-
-        /* Localización Grid */
-        .loc-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .img-card {
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
             overflow: hidden;
-            text-align: center;
-            background: var(--bg-light);
+            page-break-after: always;
+            box-sizing: border-box;
         }
 
-        .img-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
+        .page-dark {
+            background: var(--paper-dark);
+            color: var(--paper);
         }
 
-        .img-card span {
-            display: block;
-            padding: 5px;
-            font-weight: 600;
-            font-size: 10px;
-            background: white;
-        }
-
-        /* Tablas Técnicas */
-        .tech-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        .tech-table td {
-            padding: 8px;
-            border: 1px solid var(--border-color);
-        }
-
-        .tech-table .label {
-            background: var(--bg-light);
-            font-weight: 600;
-            width: 30%;
-        }
-
-        /* Calendario de Índices */
-        .calendar-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        .calendar-table th {
-            background: #222;
-            color: white;
-            padding: 6px;
-        }
-
-        .calendar-table td {
-            padding: 8px;
-            border: 1px solid #eee;
-        }
-
-        .dot-full { color: #2ecc71; font-size: 18px; }
-        .dot-half { color: #f1c40f; font-size: 18px; }
-        .dot-empty { color: #ccc; font-size: 18px; }
-
-        /* Dictamen */
-        .dictamen-box {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .badge-optimo { color: #27ae60; font-weight: 700; border: 2px solid #27ae60; padding: 10px; border-radius: 8px; text-align: center; }
-
-        @page {
-            @bottom-center {
-                content: "Página " counter(page) " de " counter(pages);
-                font-family: 'Inter', sans-serif;
-                font-size: 9px;
-                color: #999;
-            }
-        }
-
-        .footer-info {
+        /* Side Rail */
+        .side-rail {
             position: absolute;
-            bottom: 30px;
-            width: calc(100% - 60px);
-            font-size: 9px;
-            color: #bdc3c7;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
+            top: 0; bottom: 0; left: 0;
+            width: 42mm;
+            border-right: 0.5px solid var(--rule);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px 0 60px;
             text-align: center;
         }
+        .page-dark .side-rail { border-right-color: rgba(236,227,208,0.2); }
+
+        .side-rail .vertical-text {
+            transform: rotate(-90deg);
+            transform-origin: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            color: var(--ink-soft);
+            margin-top: 100px;
+        }
+        .page-dark .vertical-text { color: rgba(236,227,208,0.6); }
+
+        .side-rail .page-num { font-style: italic; font-size: 24px; }
+
+        /* Main Content Area */
+        .content {
+            margin-left: 50mm;
+            margin-right: 20mm;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        /* Typography */
+        h1 { font-weight: 400; font-size: 70px; margin: 0; line-height: 0.9; }
+        h2 { font-weight: 400; font-size: 32px; margin: 0; letter-spacing: -0.3px; color: var(--wine); }
+        .kicker { font-family: 'Inter', sans-serif; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 5px; }
+        
+        /* Grid & Cards */
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .img-atlas {
+            border: 0.5px solid var(--ink);
+            background: var(--paper-deep);
+            padding: 2px;
+            margin-bottom: 10px;
+        }
+        .img-atlas img { width: 100%; display: block; filter: sepia(0.1); }
+        .img-atlas .caption {
+            background: rgba(31,30,22,0.6);
+            color: var(--paper);
+            padding: 4px 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 7px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        /* Tables */
+        .atlas-table {
+            width: 100%;
+            border-top: 1px solid var(--ink);
+            border-bottom: 1px solid var(--ink);
+            margin: 15px 0;
+            border-collapse: collapse;
+        }
+        .atlas-table td { padding: 10px 8px; vertical-align: top; border-right: 0.5px solid var(--rule); }
+        .atlas-table td:last-child { border-right: none; }
+        .atlas-table .label { font-family: 'Inter', sans-serif; font-size: 7px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 3px; }
+        .atlas-table .val { font-size: 15px; font-style: italic; }
+
+        /* Calendar dots */
+        .dot-full { color: var(--olive); font-size: 16px; }
+        .dot-half { color: var(--ocher); font-size: 16px; }
+        .dot-empty { color: #ccc; font-size: 16px; }
+
+        .dictamen-card { border: 1px solid var(--ink); padding: 15px; border-radius: 4px; background: var(--paper-deep); }
+
+        @page { size: A4; margin: 0; }
     </style>
 </head>
 <body>
+
+    <!-- PORTADA -->
+    <div class="page page-dark">
+        <div class="side-rail">
+            <div class="vertical-text">GeoArga · Atlas de viñedos</div>
+            <div class="page-num">01</div>
+        </div>
+        <div class="content" style="height: 85%; display: flex; flex-direction: column; justify-content: space-between; padding-top: 80px;">
+            <div>
+                <div class="kicker" style="color: var(--ocher);">Informe Técnico Premium</div>
+                <h1>Atlas de<br><span style="color: var(--ocher); font-style: italic;">Parcelas</span></h1>
+                <div style="margin-top: 40px; font-size: 24px; font-style: italic;">Preparado para: Cooperativa Agrícola Demo</div>
+            </div>
+            <div style="border-top: 0.5px solid rgba(236,227,208,0.3); padding-top: 20px; font-size: 11px;">
+                Campaña MMXXV | Copernicus Sentinel-2 L2A | {{ hoy }}
+            </div>
+        </div>
+    </div>
+
     {% for p in parcels %}
+    <!-- PÁGINA 1: LOCALIZACIÓN E ÍNDICES -->
     <div class="page">
-        <header>
-            <div class="logo-box">
-                <h1>ANÁLISIS GEOESPACIAL</h1>
-                <span>{{ p.info.nombre }} | ID: {{ p.info.id }}</span>
-            </div>
-            <div class="header-meta">
-                FECHA GENERACIÓN: {{ hoy }}<br>
-                COPERNICUS SENTINEL-2 L2A
-            </div>
-        </header>
+        <div class="side-rail">
+            <div class="vertical-text">GeoArga · {{ p.info.nombre }}</div>
+            <div class="page-num">{{ loop.index * 2 }}</div>
+        </div>
+        <div class="content">
+            <!-- 1. LOCALIZACIÓN -->
+            <section style="margin-bottom: 40px;">
+                <div class="kicker">1 — Localización</div>
+                <h2>Contexto Geográfico e IGN</h2>
+                <div class="grid-3" style="margin-top: 15px;">
+                    <div class="img-atlas"><img src="{{ p.wms.pnoa }}"><div class="caption">Ortofoto PNOA</div></div>
+                    <div class="img-atlas"><img src="{{ p.wms.sigpac }}"><div class="caption">Delimitación SIGPAC</div></div>
+                    <div class="img-atlas"><img src="{{ p.wms.topo }}"><div class="caption">Mapa Topográfico</div></div>
+                </div>
+                <table class="atlas-table">
+                    <tr>
+                        <td><div class="label">Altitud</div><div class="val">{{ p.fisiografia.altitud }}</div></td>
+                        <td><div class="label">Pendiente</div><div class="val">{{ p.fisiografia.pendiente_pct }}</div></td>
+                        <td><div class="label">Superficie</div><div class="val">{{ p.fisiografia.superficie }}</div></td>
+                    </tr>
+                    <tr>
+                        <td><div class="label">Orientación</div><div class="val">{{ p.fisiografia.orientacion }}</div></td>
+                        <td colspan="2"><div class="label">Municipio / Polígono</div><div class="val">{{ p.fisiografia.municipio }} - {{ p.fisiografia.poligono }}</div></td>
+                    </tr>
+                </table>
+            </section>
 
-        <!-- 1. LOCALIZACIÓN -->
-        <section>
-            <h2 class="section-header">1 — Localización y Datos Catastrales</h2>
-            <div class="loc-grid">
-                <div class="img-card">
-                    <img src="{{ p.wms.pnoa }}" alt="PNOA">
-                    <span>ORTODOTO AÉREA (PNOA)</span>
+            <!-- 2. ÍNDICES -->
+            <section>
+                <div class="kicker">2 — Índices de Vegetación</div>
+                <h2>Estado del Cultivo</h2>
+                <div class="grid-3" style="margin-top: 15px;">
+                    <div class="img-atlas"><img src="{{ p.indices.ndvi }}"><div class="caption">Vigor (NDVI)</div></div>
+                    <div class="img-atlas"><img src="{{ p.indices.ndre }}"><div class="caption">Clorofila (NDRE)</div></div>
+                    <div class="img-atlas"><img src="{{ p.indices.ndmi }}"><div class="caption">Humedad (NDMI)</div></div>
                 </div>
-                <div class="img-card">
-                    <img src="{{ p.wms.sigpac }}" alt="SIGPAC">
-                    <span>DELIMITACIÓN SIGPAC</span>
-                </div>
-                <div class="img-card">
-                    <img src="{{ p.wms.topo }}" alt="TOPOGRAFÍA">
-                    <span>TOPOGRAFÍA IGN</span>
-                </div>
-            </div>
-            <table class="tech-table">
-                <tr>
-                    <td class="label">Altitud Media</td><td>{{ p.fisiografia.altitud }}</td>
-                    <td class="label">Superficie</td><td>{{ p.fisiografia.superficie }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Pendiente Máx/Media</td><td>{{ p.fisiografia.pendiente_pct }} ({{ p.fisiografia.pendiente_deg }})</td>
-                    <td class="label">Municipio</td><td>{{ p.fisiografia.municipio }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Orientación Predom.</td><td>{{ p.fisiografia.orientacion }}</td>
-                    <td class="label">Polígono/Parcela</td><td>{{ p.fisiografia.poligono }}</td>
-                </tr>
-            </table>
-        </section>
+                
+                <div class="kicker" style="margin-top: 20px;">Calendario de Disponibilidad</div>
+                <table class="atlas-table" style="text-align: center;">
+                    <tr style="font-size: 9px; font-weight: bold; border-bottom: 0.5px solid var(--rule);">
+                        <td style="text-align: left;">Índice</td><td>Abr</td><td>May</td><td>Jun</td><td>Jul</td><td>Ago</td><td>Sep</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left; font-weight: 600;">NDVI</td>
+                        <td class="dot-half">◑</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-half">◑</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left; font-weight: 600;">NDMI</td>
+                        <td class="dot-empty">○</td><td class="dot-half">◑</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-half">◑</td>
+                    </tr>
+                </table>
+            </section>
+        </div>
+    </div>
 
-        <!-- 2. ÍNDICES -->
-        <section>
-            <h2 class="section-header">2 — Índices de Vegetación Disponibles</h2>
-            <div class="loc-grid">
-                <div class="img-card"><img src="{{ p.indices.ndvi }}"><span>VIGOR (NDVI)</span></div>
-                <div class="img-card"><img src="{{ p.indices.ndre }}"><span>CLOROFILA (NDRE)</span></div>
-                <div class="img-card"><img src="{{ p.indices.ndmi }}"><span>ESTRÉS HÍDRICO (NDMI)</span></div>
-            </div>
-            
-            <h3 style="margin-top: 20px;">Calendario de seguimiento óptimo</h3>
-            <table class="calendar-table">
-                <tr>
-                    <th>Índice</th><th>Abr</th><th>May</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Sep</th>
-                </tr>
-                <tr>
-                    <td style="text-align: left; font-weight: 600;">NDVI</td>
-                    <td class="dot-half">◑</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-half">◑</td>
-                </tr>
-                <tr>
-                    <td style="text-align: left; font-weight: 600;">NDMI</td>
-                    <td class="dot-empty">○</td><td class="dot-half">◑</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-half">◑</td>
-                </tr>
-                <tr>
-                    <td style="text-align: left; font-weight: 600;">NDRE</td>
-                    <td class="dot-empty">○</td><td class="dot-empty">○</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-full">●</td><td class="dot-half">◑</td>
-                </tr>
-            </table>
-        </section>
-
-        <!-- 3. ANÁLISIS TEMPORAL -->
-        <section style="page-break-before: always;">
-            <header>
-                <div class="logo-box">
-                    <h1>ANÁLISIS GEOESPACIAL</h1>
-                    <span>{{ p.info.nombre }} | ID: {{ p.info.id }}</span>
+    <!-- PÁGINA 2: ANÁLISIS TEMPORAL E INTERPRETACIÓN -->
+    <div class="page">
+        <div class="side-rail">
+            <div class="vertical-text">GeoArga · {{ p.info.nombre }}</div>
+            <div class="page-num">{{ loop.index * 2 + 1 }}</div>
+        </div>
+        <div class="content">
+            <!-- 3. ANÁLISIS TEMPORAL -->
+            <section style="margin-bottom: 40px;">
+                <div class="kicker">3 — Análisis Temporal</div>
+                <h2>Evolución de la Campaña</h2>
+                <div class="img-atlas" style="margin-top: 15px;">
+                    <img src="{{ p.chart }}" style="height: 300px; object-fit: contain;">
+                    <div class="caption">Evolución de Índices MMXXV</div>
                 </div>
-                <div class="header-meta">
-                    FECHA GENERACIÓN: {{ hoy }}<br>
-                    COPERNICUS SENTINEL-2 L2A
-                </div>
-            </header>
+            </section>
 
-            <h2 class="section-header">3 — Análisis Temporal de la Campaña</h2>
-            <div class="img-card" style="margin-bottom: 20px;">
-                <img src="{{ p.chart }}" alt="Gráfica" style="height: 300px;">
-                <span>EVOLUCIÓN HISTÓRICA DE ÍNDICES</span>
-            </div>
-            
-            <p><strong>Nota:</strong> Los valores reflejan la media de la parcela en reflectancia corregida atmosféricamente (L2A).</p>
-        </section>
-
-        <!-- 4. INTERPRETACIÓN -->
-        <section>
-            <h2 class="section-header">4 — Interpretación y Recomendaciones</h2>
-            <div class="dictamen-box">
-                <div class="card" style="border: 1px solid #eee; padding: 15px; border-radius: 8px;">
-                    <div style="font-weight: 700; margin-bottom: 10px;">DICTAMEN ACTUAL:</div>
-                    <div class="badge-optimo">{{ p.dictamen }}</div>
+            <!-- 4. INTERPRETACIÓN -->
+            <section>
+                <div class="kicker">4 — Interpretación y Recomendaciones</div>
+                <h2>Dictamen Técnico</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                    <div class="dictamen-card">
+                        <div class="label">ESTADO ACTUAL</div>
+                        <div class="val" style="color: var(--olive); font-size: 24px; font-weight: bold;">{{ p.dictamen }}</div>
+                    </div>
+                    <div class="dictamen-card">
+                        <div class="label">TENDENCIA</div>
+                        <div class="val" style="color: var(--wine); font-size: 24px; font-weight: bold;">{{ p.tendencia }}</div>
+                    </div>
                 </div>
-                <div class="card" style="border: 1px solid #eee; padding: 15px; border-radius: 8px;">
-                    <div style="font-weight: 700; margin-bottom: 10px;">TENDENCIA:</div>
-                    <div style="font-size: 18px; color: #2980b9;">{{ p.tendencia }} ➔</div>
+                <div style="margin-top: 20px; font-size: 18px; line-height: 1.6; font-style: italic; background: var(--paper-deep); padding: 25px; border-radius: 4px;">
+                    {{ p.recomendacion }}
                 </div>
-            </div>
-            <div style="margin-top: 20px; background: var(--bg-light); padding: 20px; border-radius: 8px; border-left: 5px solid var(--brand-primary);">
-                <strong>Informe técnico:</strong><br>
-                {{ p.recomendacion }}
-            </div>
-        </section>
-
+            </section>
+        </div>
     </div>
     {% endfor %}
 
-    <!-- 5. METODOLOGÍA (Fuera del bucle, al final del informe) -->
-    <div class="page" style="min-height: auto;">
-        <h2 class="section-header">5 — Metodología y Próximas Citas</h2>
-        <table class="tech-table">
-            <tr><td><strong>Sentinel-2</strong></td><td>Imágenes multiespectrales de 10m de resolución corregidas atmosféricamente.</td></tr>
-            <tr><td><strong>SIGPAC</strong></td><td>Geometrías oficiales del Ministerio de Agricultura, Pesca y Alimentación.</td></tr>
-            <tr><td><strong>PNOA</strong></td><td>Fotografía aérea de máxima resolución del Plan Nacional de Ortofotografía Aérea.</td></tr>
-        </table>
-        
-        <div style="margin-top: 30px; padding: 20px; border: 2px dashed var(--brand-primary); text-align: center; border-radius: 12px;">
-            <div style="font-size: 14px; font-weight: 700; color: var(--brand-primary); margin-bottom: 5px;">
-                PRÓXIMA IMAGEN DISPONIBLE (Previsión)
-            </div>
-            <div style="font-size: 24px; font-weight: 700;">
-                {{ parcels[0].proxima_imagen if parcels else hoy }}
-            </div>
-            <p style="font-size: 10px; color: #666; margin-top: 10px;">
-                * La disponibilidad real depende de la cobertura de nubes y el tiempo de procesado de la ESA.
-            </p>
+    <!-- 5. METODOLOGÍA -->
+    <div class="page">
+        <div class="side-rail">
+            <div class="vertical-text">GeoArga · Documentación</div>
+            <div class="page-num">FIN</div>
         </div>
+        <div class="content">
+            <div class="kicker">5 — Metodología y Fuentes</div>
+            <h2>Ficha Técnica</h2>
+            <table class="atlas-table" style="margin-top: 30px;">
+                <tr>
+                    <td class="label">Satélite</td>
+                    <td class="val">Copernicus Sentinel-2 (ESA). Resolución 10m. Frecuencia 5 días.</td>
+                </tr>
+                <tr>
+                    <td class="label">Cartografía</td>
+                    <td class="val">Plan Nacional de Ortofotografía Aérea (PNOA) e IGN Base.</td>
+                </tr>
+                <tr>
+                    <td class="label">Parcelario</td>
+                    <td class="val">Sistema de Información Geográfica de Parcelas Agrícolas (SIGPAC).</td>
+                </tr>
+            </table>
 
-        <div class="footer-info" style="position: relative; margin-top: 50px; bottom: 0;">
-            Este informe es de carácter técnico y se basa en datos abiertos de Copernicus y el IGN. No sustituye la inspección visual en campo.
+            <div style="margin-top: 50px; padding: 40px; border: 1px solid var(--ocher); text-align: center;">
+                <div class="kicker">Próxima Captura Prevista</div>
+                <div style="font-size: 40px; font-style: italic; color: var(--ocher);">
+                    {{ parcels[0].proxima_imagen if parcels else hoy }}
+                </div>
+            </div>
         </div>
     </div>
+
 </body>
 </html>

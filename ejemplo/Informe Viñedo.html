@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Informe de viñedo — Bodega Ejemplo · Julio 2025</title>
+  <meta name="viewport" content="width=1440">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #2b2924;
+      --bg-rail: #1f1d19;
+      --bg-panel: #f3efe6;
+      --bg-panel-dark: #181614;
+      --text-rail: #d6cfbd;
+      --text-rail-muted: #8a8270;
+      --accent: #c9a96a;
+      --wine: #6a1f1f;
+    }
+
+    html, body {
+      margin: 0; padding: 0; background: var(--bg);
+      color: var(--text-rail);
+      font-family: Inter, system-ui, sans-serif;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    * { box-sizing: border-box; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ─── Left rail: document nav ─────────────────────────── */
+    .rail {
+      background: var(--bg-rail);
+      padding: 28px 22px;
+      position: sticky; top: 0;
+      height: 100vh; overflow: auto;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .rail-brand {
+      margin-bottom: 4px;
+    }
+    .rail-brand img {
+      display: block;
+      width: 138px;
+      height: auto;
+    }
+    .rail-sub {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text-rail-muted); margin-bottom: 30px;
+    }
+    .rail h4 {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text-rail-muted);
+      margin: 28px 0 12px;
+      font-weight: 500;
+    }
+    .rail-option {
+      display: block; width: 100%; text-align: left;
+      background: transparent; border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-rail);
+      padding: 12px 14px; margin-bottom: 8px;
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 15px; line-height: 1.3; cursor: pointer;
+      transition: background 120ms, border-color 120ms;
+    }
+    .rail-option:hover { background: rgba(255,255,255,0.04); }
+    .rail-option.active {
+      background: #fff; color: #111; border-color: #fff;
+    }
+    .rail-option .num {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 9px; letter-spacing: 2px; color: inherit;
+      opacity: 0.6; display: block; margin-bottom: 2px; text-transform: uppercase;
+    }
+    .rail-option .nm {
+      font-style: italic; font-size: 18px;
+    }
+    .rail-option .ds {
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 11px; font-style: normal;
+      color: inherit; opacity: 0.7; margin-top: 4px;
+    }
+
+    .rail-pages {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+      margin-top: 4px;
+    }
+    .rail-pages button {
+      background: transparent; border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-rail); cursor: pointer;
+      padding: 8px 0; font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 11px; letter-spacing: 1px;
+    }
+    .rail-pages button:hover { background: rgba(255,255,255,0.04); }
+
+    /* ─── Main viewer ─────────────────────────────────────── */
+    .stage {
+      padding: 48px;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 28px;
+      background:
+        radial-gradient(ellipse 1200px 600px at 50% 0%, rgba(201,169,106,0.06), transparent 60%),
+        var(--bg);
+    }
+
+    .stage-head {
+      width: 100%; max-width: 1200px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      color: var(--text-rail);
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .stage-head h1 {
+      margin: 0; font-family: 'EB Garamond', Georgia, serif; font-weight: 400;
+      font-size: 32px; font-style: italic; color: #fff;
+    }
+    .stage-head .kicker {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text-rail-muted); margin-bottom: 2px;
+    }
+    .stage-head .actions {
+      display: flex; gap: 10px; align-items: center;
+    }
+    .btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.18);
+      color: var(--text-rail);
+      padding: 9px 14px; font-family: Inter, system-ui, sans-serif;
+      font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+      transition: border-color 120ms, background 120ms;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary { background: var(--accent); color: #111; border-color: var(--accent); }
+    .btn-primary:hover { background: #fff; color: #111; border-color: #fff; }
+
+    /* ─── Page display ────────────────────────────────────── */
+    .page-wrap {
+      display: flex; flex-direction: column; gap: 36px; align-items: center;
+      padding: 12px 0 60px;
+    }
+    .page {
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
+      outline: 1px solid rgba(0,0,0,0.15);
+    }
+
+    .page-label {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text-rail-muted);
+      margin-bottom: 0;
+      width: 794px; display: flex; justify-content: space-between;
+    }
+
+    /* ─── Print rules ─────────────────────────────────────── */
+    @page { size: A4 portrait; margin: 0; }
+    @media print {
+      /* Fuerza a los navegadores a mantener colores/fondos */
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+      }
+      .rail, .stage-head, .page-label { display: none !important; }
+      .app { display: block !important; }
+      .stage {
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #fff !important;
+      }
+      .page-wrap {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .page-wrap > div {
+        margin: 0 auto !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+      /* Oculta separador visual de 6px entre etiqueta y página */
+      .page-wrap > div > div:nth-child(2) {
+        display: none !important;
+      }
+      .page {
+        box-shadow: none !important; outline: none !important;
+        width: 794px !important;
+        height: auto !important;
+        min-height: 1123px !important;
+        margin: 0 auto !important;
+        overflow: visible !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+      /* En PDF, ocultamos rail lateral interno de Atlas para evitar descuadres de folio */
+      .page-atlas > div:first-child {
+        display: none !important;
+      }
+      .page-atlas > div:nth-child(2) {
+        padding-left: 52px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="report-data.jsx"></script>
+  <script type="text/babel" src="report-visuals.jsx"></script>
+  <script type="text/babel" src="report-atlas.jsx?v=20260422-1524"></script>
+
+  <script type="text/babel">
+    const DEFAULTS = /*EDITMODE-BEGIN*/{
+      "layer": "ndvi",
+      "ramp": "classic"
+    }/*EDITMODE-END*/;
+
+    function usePersistentState(key, initial) {
+      const [v, setV] = React.useState(() => {
+        try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : initial; }
+        catch { return initial; }
+      });
+      React.useEffect(() => {
+        try { localStorage.setItem(key, JSON.stringify(v)); } catch {}
+      }, [key, v]);
+      return [v, setV];
+    }
+
+    function persist(key, val) {
+      try {
+        window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: val } }, '*');
+      } catch {}
+    }
+
+    function App() {
+      const [layer,      setLayer]     = usePersistentState('gv_layer',     DEFAULTS.layer);
+      const [ramp,       setRamp]      = usePersistentState('gv_ramp',      DEFAULTS.ramp);
+      const [pageIdx,    setPageIdx]   = usePersistentState('gv_page',      null); // null = show all
+      const [editMode,   setEditMode]  = React.useState(false);
+
+      // edit mode host protocol
+      React.useEffect(() => {
+        const onMsg = (e) => {
+          const m = e.data || {};
+          if (m.type === '__activate_edit_mode')   setEditMode(true);
+          if (m.type === '__deactivate_edit_mode') setEditMode(false);
+        };
+        window.addEventListener('message', onMsg);
+        try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch {}
+        return () => window.removeEventListener('message', onMsg);
+      }, []);
+
+      const setL = (v) => { setLayer(v);     persist('layer', v); };
+      // Build the right report — call component fn directly so we can read its children
+      const pages = React.useMemo(() => {
+        const Cmp = window.AtlasReport;
+        const rendered = Cmp({ layer, setLayer: setL, ramp });
+        return React.Children.toArray(rendered.props.children);
+      }, [layer, ramp]);
+
+      const shown = pageIdx == null ? pages : [pages[Math.min(pageIdx, pages.length - 1)]];
+
+      const handlePrint = () => window.print();
+
+      return (
+        <div className="app">
+          <aside className="rail">
+            <div className="rail-brand">
+              <img src="assets/geoarga-logo.png" alt="GeoArga"/>
+            </div>
+            <div className="rail-sub">informe sentinel-2 · jul 2025</div>
+
+          </aside>
+
+          <main className="stage">
+            <div className="stage-head">
+              <div>
+                <div className="kicker">
+                  {`Informe Atlas · ${pageIdx == null ? `${pages.length} páginas` : `página ${pageIdx + 1} / ${pages.length}`}`}
+                </div>
+                <h1>Informe de viñedo — Bodega Ejemplo</h1>
+              </div>
+              <div className="actions">
+                <button className="btn" onClick={() => setPageIdx(null)}>Todas</button>
+                <button className="btn" onClick={() => setPageIdx((prev) => {
+                  if (prev == null) return 0;
+                  return Math.max(0, prev - 1);
+                })}>Anterior</button>
+                <button className="btn" onClick={() => setPageIdx((prev) => {
+                  if (prev == null) return 0;
+                  return Math.min(pages.length - 1, prev + 1);
+                })}>Siguiente</button>
+                <button className="btn btn-primary" onClick={handlePrint}>Imprimir / PDF</button>
+              </div>
+            </div>
+
+            <div className="page-wrap">
+              {shown.map((pg, i) => {
+                const absIdx = pageIdx == null ? i : pageIdx;
+                return (
+                  <div key={absIdx}>
+                    <div className="page-label">
+                      <span>pág. {String(absIdx + 1).padStart(2,'0')} / {String(pages.length).padStart(2,'0')}</span>
+                      <span>A4 · 794 × 1123 px @ 96dpi</span>
+                    </div>
+                    <div style={{ height: 6 }}/>
+                    {pg}
+                  </div>
+                );
+              })}
+            </div>
+          </main>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>
