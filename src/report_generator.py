@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from weasyprint import HTML
+from dotenv import load_dotenv
 
 # Configuración de rutas
 SRC_DIR = Path(__file__).resolve().parent
@@ -19,6 +20,8 @@ INPUT_DIR = PROJECT_ROOT / "geojson_entrada"
 TEMPLATES_DIR = PROJECT_ROOT / "templates"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 ASSETS_DIR = PROJECT_ROOT / "assets"
+ENV_FILE = SRC_DIR / ".env"
+load_dotenv(ENV_FILE)
 
 # Buscamos el primer geojson en la carpeta de entrada, si no existe usamos el demo
 geojson_files = list(INPUT_DIR.glob("*.geojson"))
@@ -326,6 +329,132 @@ def build_monthly_real_data(full_stats):
         monthly[ix] = ix_months
     return monthly
 
+
+def build_ai_dataset(parcels_json, report_from_date, report_to_date):
+    """Prepara un dataset compacto (pero completo) para el análisis de IA."""
+    ai_parcels = []
+    for p in parcels_json:
+        ai_parcels.append(
+            {
+                "id": p.get("id"),
+                "nombre": p.get("nombre"),
+                "info": p.get("info", {}),
+                "fisiografia": p.get("fisiografia", {}),
+                "datos_reales_ultimo_anio_mensual": p.get("datos_reales_ultimo_anio_mensual", {}),
+                "summary_for_pdf": p.get("summary_for_pdf", {}),
+            }
+        )
+    return {
+        "periodo": {
+            "from_date": report_from_date,
+            "to_date": report_to_date,
+            "stats_interval": "P1M",
+        },
+        "parcels": ai_parcels,
+    }
+
+
+def enrich_with_openai_analysis(parcels_data, ai_dataset):
+    """
+    Completa dictamen/tendencia/recomendacion usando OpenAI.
+    Si falta credencial o falla la API, mantiene los valores existentes.
+    """
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        print("Aviso: OPENAI_API_KEY no definida; se usan textos locales por defecto.")
+        return None
+
+    model = os.environ.get("OPENAI_MODEL", "gpt-4.1-mini")
+    base_url = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+    prompt = (
+        "Eres un enólogo y viticultor especializado en viticultura de precisión con amplia experiencia "
+        "en Denominaciones de Origen españolas. Voy a proporcionarte datos de teledetección satelital "
+        "(Sentinel-2) de varias parcelas de viñedo.\n"
+        "Los índices que encontrarás en los datos son:\n\n"
+        "NDVI: vigor vegetativo general\n"
+        "NDRE: estado nutricional y clorofila en capas profundas del dosel\n"
+        "NDMI: estado hídrico de la vegetación\n"
+        "CHL: contenido de clorofila foliar, proxy del estado nitrogenado\n\n"
+        "El mes actual es el último mes del período analizado en los datos. Ten esto en cuenta para "
+        "contextualizar el momento del ciclo en que nos encontramos ahora mismo y orientar las "
+        "recomendaciones a acciones que se pueden tomar de forma inmediata.\n"
+        "Cuando recibas los datos, analiza cada parcela y el conjunto, y devuelve un informe estructurado "
+        "con los siguientes apartados:\n"
+        "1. Diagnóstico fenológico\n"
+        "2. Comparativa de vigor entre parcelas\n"
+        "3. Estado nutricional (NDRE y CHL)\n"
+        "4. Estado hídrico (NDMI)\n"
+        "5. Riesgos agronómicos detectados\n"
+        "6. Recomendaciones de manejo de precisión\n"
+        "7. Perspectiva de calidad para la cosecha\n\n"
+        "Sé técnico y específico con los valores numéricos de los datos. Cuando detectes algo llamativo "
+        "o inusual, señálalo explícitamente. Evita generalidades que no estén respaldadas por los datos adjuntos.\n\n"
+        "Devuelve SIEMPRE JSON válido con esta estructura exacta:\n"
+        "{\n"
+        "  \"analisis_global\": {\n"
+        "    \"diagnostico_fenologico\": \"texto\",\n"
+        "    \"comparativa_vigor\": \"texto\",\n"
+        "    \"estado_nutricional\": \"texto\",\n"
+        "    \"estado_hidrico\": \"texto\",\n"
+        "    \"riesgos_agronomicos\": \"texto\",\n"
+        "    \"recomendaciones_manejo\": \"texto\",\n"
+        "    \"perspectiva_calidad\": \"texto\"\n"
+        "  },\n"
+        "  \"parcelas\": {\n"
+        "    \"<ID_PARCELA>\": {\n"
+        "      \"dictamen\": \"texto corto\",\n"
+        "      \"tendencia\": \"texto corto\",\n"
+        "      \"recomendacion\": \"texto de 2-4 frases\",\n"
+        "      \"diagnostico_fenologico\": \"texto\",\n"
+        "      \"estado_nutricional\": \"texto\",\n"
+        "      \"estado_hidrico\": \"texto\",\n"
+        "      \"riesgos\": [\"riesgo1\", \"riesgo2\"]\n"
+        "    }\n"
+        "  }\n"
+        "}\n\n"
+        "Los datos son los siguientes:\n"
+        f"{json.dumps(ai_dataset, ensure_ascii=False)}"
+    )
+
+    payload = {
+        "model": model,
+        "response_format": {"type": "json_object"},
+        "messages": [
+            {"role": "system", "content": "Eres un agrónomo experto en viticultura de precisión."},
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.2,
+    }
+
+    try:
+        response = requests.post(
+            f"{base_url}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+            timeout=90,
+        )
+        response.raise_for_status()
+        data = response.json()
+        raw = data["choices"][0]["message"]["content"]
+        parsed = json.loads(raw)
+    except Exception as e:
+        print(f"Aviso: no se pudo obtener análisis OpenAI ({e}). Se mantienen textos locales.")
+        return None
+
+    by_parcel = parsed.get("parcelas", {})
+    for parcel in parcels_data:
+        parcel_id = parcel.get("id")
+        ai_p = by_parcel.get(parcel_id, {})
+        if ai_p:
+            parcel["dictamen"] = ai_p.get("dictamen", parcel.get("dictamen", "N/D"))
+            parcel["tendencia"] = ai_p.get("tendencia", parcel.get("tendencia", "N/D"))
+            parcel["recomendacion"] = ai_p.get("recomendacion", parcel.get("recomendacion", "N/D"))
+
+    return parsed
+
 def main():
     if not GEOJSON_FILE.exists(): return
 
@@ -511,6 +640,9 @@ def main():
             "summary_for_pdf": stats_summary,
         })
 
+    ai_dataset = build_ai_dataset(json_parcels, report_from_date, report_to_date)
+    ai_analysis = enrich_with_openai_analysis(parcels_data, ai_dataset)
+
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
     template = env.get_template("report_template.html")
     html_out = template.render(parcels=parcels_data, hoy=datetime.now().strftime("%d/%m/%Y"))
@@ -536,6 +668,7 @@ def main():
             "to_date": report_to_date,
             "stats_interval": "P1M",
         },
+        "analisis_ia": ai_analysis if ai_analysis else {},
         "parcels": json_parcels,
     }
     with open(json_report_path, "w", encoding="utf-8") as f:

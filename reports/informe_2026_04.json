@@ -1,6 +1,6 @@
 {
   "report_id": "informe_2026_04",
-  "generated_at": "2026-04-23T18:13:41Z",
+  "generated_at": "2026-04-23T19:18:19Z",
   "source": {
     "satellite": "Sentinel-2",
     "indices": [
@@ -17,6 +17,56 @@
     "from_date": "2025-04-01T00:00:00Z",
     "to_date": "2026-04-01T00:00:00Z",
     "stats_interval": "P1M"
+  },
+  "analisis_ia": {
+    "analisis_global": {
+      "diagnostico_fenologico": "Nos encontramos en marzo de 2026, final del invierno e inicio de la brotación en la variedad Tinta del País (Tempranillo) en la D.O. Rioja. Los valores de NDVI en marzo (0.12-0.27 según parcela) son bajos pero típicos de viñedo en reposo invernal, aunque se observa un ligero incremento respecto a febrero, indicando inicio de actividad vegetativa. En parcelas P0 y P1 se detectan valores máximos de NDVI elevados (0.41 y 0.57 respectivamente) que sugieren heterogeneidad intraparcelaria con posibles zonas de vegetación adventicia o brotación temprana.",
+      "comparativa_vigor": "La parcela P1 presenta el mayor vigor medio anual (NDVI medio 0.268) y el máximo absoluto en marzo (0.569), indicando un desarrollo vegetativo significativamente superior al resto. P2 muestra un vigor intermedio (NDVI medio 0.211) y P0 el más bajo (NDVI medio 0.122). La desviación estándar del NDVI en marzo es muy alta en P1 (0.086) y P0 (0.049), reflejando una elevada heterogeneidad espacial dentro de estas parcelas.",
+      "estado_nutricional": "Los valores de NDRE y CHL en marzo son bajos en todas las parcelas, coherentes con la parada invernal. P1 presenta los valores más altos (NDRE 0.147, CHL 1.263), seguido de P2 (NDRE 0.111, CHL 1.012) y P0 (NDRE 0.065, CHL 0.831). Sin embargo, en P1 se observa un máximo de CHL de 2.861 en marzo, inusualmente alto para la época, que podría indicar zonas con exceso de nitrógeno residual o presencia de cubierta vegetal.",
+      "estado_hidrico": "Los valores de NDMI en marzo son negativos en todas las parcelas, indicando un déficit hídrico moderado. P0 presenta el NDMI menos negativo (-0.111), mientras que P2 tiene el más negativo (-0.128). Esto es normal para la época, pero la tendencia de los últimos meses muestra un incremento del NDMI (menos negativo) desde diciembre, sugiriere una recuperación hídrica progresiva.",
+      "riesgos_agronomicos": "1. Heterogeneidad intraparcelaria elevada en P0 y P1, con zonas de vigor muy alto que podrían corresponder a malas hierbas o brotación prematura. 2. Posible exceso de nitrógeno residual en P1 (CHL máximo 2.861 en marzo) que podría adelantar el ciclo y aumentar la sensibilidad a heladas. 3. Déficit hídrico invernal en P2 (NDMI -0.128) que podría retrasar la brotación si no se recibe precipitación suficiente.",
+      "recomendaciones_manejo": "1. Realizar un mapeo de vigor con drones o sensores proximales en P0 y P1 para identificar y gestionar las zonas de alto vigor (posible control de malas hierbas prebrotación). 2. En P1, ajustar la fertilización nitrogenada de fondo, reduciendo dosis en las zonas con CHL elevado para evitar excesos. 3. En P2, considerar un riego de apoyo si la primavera es seca, para asegurar una brotación uniforme. 4. Monitorear la evolución del NDVI semanalmente para detectar posibles daños por heladas tardías.",
+      "perspectiva_calidad": "La parcela P0, con menor vigor y NDVI más bajo, podría producir uvas de mayor concentración fenólica si se maneja adecuadamente, aunque su rendimiento será limitado. P1, con alto vigor y posible exceso de nitrógeno, corre el riesgo de producir uvas con menor color y mayor acidez si no se controla el vigor. P2 presenta un equilibrio intermedio que, con un manejo hídrico adecuado, podría dar uvas de buena calidad para vinos de gama media-alta."
+    },
+    "parcelas": {
+      "P0": {
+        "dictamen": "Bajo vigor general, heterogeneidad significativa.",
+        "tendencia": "Estable con ligero repunte en marzo.",
+        "recomendacion": "Realizar control de malas hierbas en zonas de alto NDVI (máx 0.41). Ajustar fertilización nitrogenada a la baja, especialmente en áreas con CHL elevado. Considerar riego localizado si la primavera es seca para uniformizar brotación.",
+        "diagnostico_fenologico": "Viñedo en reposo invernal con inicio de brotación. NDVI medio marzo 0.122, con máximos atípicos de 0.41 que sugieren presencia de cubierta vegetal o brotación temprana en zonas puntuales.",
+        "estado_nutricional": "NDRE medio marzo 0.065, CHL medio 0.831. Valores bajos pero normales para la época. Máximo de CHL de 1.699 indica zonas con algo de reserva nitrogenada.",
+        "estado_hidrico": "NDMI medio marzo -0.111, el menos negativo de las parcelas. Déficit hídrico moderado, con tendencia a la recuperación desde diciembre.",
+        "riesgos": [
+          "Heterogeneidad intraparcelaria alta",
+          "Posible presencia de malas hierbas en zonas de alto NDVI"
+        ]
+      },
+      "P1": {
+        "dictamen": "Alto vigor, posible exceso de nitrógeno.",
+        "tendencia": "Incremento significativo en marzo (NDVI 0.268).",
+        "recomendacion": "Reducir la fertilización nitrogenada de fondo, especialmente en zonas con CHL >2.0. Realizar un desbroce selectivo en áreas de alto NDVI para eliminar competencia. Monitorear riesgo de heladas en brotación temprana.",
+        "diagnostico_fenologico": "Inicio de brotación con vigor elevado. NDVI medio marzo 0.268, con máximo de 0.569 que indica zonas muy activas o presencia de vegetación adventicia.",
+        "estado_nutricional": "NDRE medio marzo 0.147, CHL medio 1.263. Valores altos para la época, con máximo de CHL de 2.861 que sugiere exceso de nitrógeno residual.",
+        "estado_hidrico": "NDMI medio marzo -0.107, similar a P0. Déficit hídrico moderado, pero con mayor variabilidad espacial (desviación 0.048).",
+        "riesgos": [
+          "Exceso de nitrógeno residual",
+          "Brotación prematura con riesgo de heladas",
+          "Heterogeneidad intraparcelaria muy alta"
+        ]
+      },
+      "P2": {
+        "dictamen": "Vigor medio-bajo, homogeneidad aceptable.",
+        "tendencia": "Estable con ligero aumento en marzo.",
+        "recomendacion": "Mantener la fertilización de fondo estándar. Preparar sistema de riego por si la primavera es seca, dado el NDMI más negativo (-0.128). Realizar un seguimiento semanal del NDVI para detectar estrés hídrico temprano.",
+        "diagnostico_fenologico": "Viñedo en reposo invernal con brotación incipiente. NDVI medio marzo 0.211, con valores homogéneos (desviación 0.027).",
+        "estado_nutricional": "NDRE medio marzo 0.111, CHL medio 1.012. Niveles moderados, adecuados para la brotación. Sin valores extremos.",
+        "estado_hidrico": "NDMI medio marzo -0.128, el más negativo de las parcelas. Déficit hídrico más acusado, aunque dentro de lo normal para la época.",
+        "riesgos": [
+          "Déficit hídrico invernal más pronunciado",
+          "Posible retraso en brotación si no llueve"
+        ]
+      }
+    }
   },
   "parcels": [
     {

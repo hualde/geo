@@ -26,7 +26,7 @@
 
         .page {
             width: 210mm;
-            height: 296mm;
+            height: 297mm;
             background: var(--paper);
             position: relative;
             overflow: hidden;
@@ -258,6 +258,17 @@
 
         .dictamen-card { border: 1px solid var(--ink); padding: 15px; border-radius: 4px; background: var(--paper-deep); }
 
+        .cal-marker {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            vertical-align: middle;
+        }
+        .cal-full { background: var(--ink); }
+        .cal-half { background: linear-gradient(to right, var(--ink) 50%, transparent 50%); border: 0.8px solid var(--ink); box-sizing: border-box; }
+        .cal-empty { border: 0.8px solid var(--ink); box-sizing: border-box; }
+
         .parcel-header {
             border-bottom: 2px solid var(--ink);
             padding-bottom: 10px;
@@ -441,7 +452,7 @@
     <div class="page">
         <div class="side-rail">
             <div class="vertical-text">GeoArga · Documentación</div>
-            <div class="page-num">FIN</div>
+            <div class="page-num">05</div>
         </div>
         <div class="content">
             <div class="kicker">5 — Metodología y Fuentes</div>
@@ -468,6 +479,65 @@
                         Sistema de Información Geográfica de Parcelas Agrícolas. Es la base de datos oficial del Ministerio para la identificación de recintos. De aquí obtenemos la delimitación geométrica legal de las parcelas para asegurar que nuestro análisis se ciñe estrictamente a su propiedad.
                     </div>
                 </div>
+
+                <div style="margin-top: 12px; border-top: 0.5px solid var(--rule); padding-top: 10px;">
+                    <div class="label" style="color: var(--wine); font-weight: bold; font-size: 10px;">Guía de Índices Espectrales</div>
+                    <div style="margin-top: 6px; font-size: 11px; line-height: 1.35;">
+                        Todos los índices se calculan a partir de imágenes Sentinel-2 (ESA/Copernicus) con resolución de 10 metros por píxel y revisita cada 3-5 días sobre la Península Ibérica.
+                    </div>
+
+                    <div style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="border: 0.5px solid var(--rule); background: #f5efdf; padding: 7px;">
+                            <div style="font-size: 10px; color: var(--wine); font-weight: bold;">NDVI</div>
+                            <div style="font-size: 9px; color: var(--ink-soft); margin-top: 1px;">Vigor vegetativo general</div>
+                            <div style="font-size: 9.5px; line-height: 1.25; margin-top: 3px;">Actividad fotosintética y contraste de vigor entre zonas de la parcela.</div>
+                            <div style="font-size: 9px; margin-top: 4px;"><strong>Calendario:</strong> Abr ◑ · May ● · Jun ● · Jul ● · Ago ● · Sep ◑</div>
+                        </div>
+                        <div style="border: 0.5px solid var(--rule); background: #f5efdf; padding: 7px;">
+                            <div style="font-size: 10px; color: var(--wine); font-weight: bold;">NDMI</div>
+                            <div style="font-size: 9px; color: var(--ink-soft); margin-top: 1px;">Humedad en planta/suelo superficial</div>
+                            <div style="font-size: 9.5px; line-height: 1.25; margin-top: 3px;">Detección temprana de estrés hídrico antes de síntomas visuales.</div>
+                            <div style="font-size: 9px; margin-top: 4px;"><strong>Calendario:</strong> Abr ◯ · May ◑ · Jun ● · Jul ● · Ago ● · Sep ◑</div>
+                        </div>
+                        <div style="border: 0.5px solid var(--rule); background: #f5efdf; padding: 7px;">
+                            <div style="font-size: 10px; color: var(--wine); font-weight: bold;">NDRE</div>
+                            <div style="font-size: 9px; color: var(--ink-soft); margin-top: 1px;">Nitrógeno en canopia</div>
+                            <div style="font-size: 9.5px; line-height: 1.25; margin-top: 3px;">Más sensible en dosel cerrado; útil para fertilización de precisión.</div>
+                            <div style="font-size: 9px; margin-top: 4px;"><strong>Calendario:</strong> Abr ◯ · May ◯ · Jun ● · Jul ● · Ago ● · Sep ◑</div>
+                        </div>
+                        <div style="border: 0.5px solid var(--rule); background: #f5efdf; padding: 7px;">
+                            <div style="font-size: 10px; color: var(--wine); font-weight: bold;">CIre (CHL)</div>
+                            <div style="font-size: 9px; color: var(--ink-soft); margin-top: 1px;">Clorofila activa</div>
+                            <div style="font-size: 9.5px; line-height: 1.25; margin-top: 3px;">Complementa NDRE con diagnóstico nutricional fino en pico de campaña.</div>
+                            <div style="font-size: 9px; margin-top: 4px;"><strong>Calendario:</strong> Abr ◯ · May ◯ · Jun ● · Jul ● · Ago ◑ · Sep ◯</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 8px; border: 0.5px solid var(--rule); background: var(--paper-deep); padding: 8px;">
+                        <div class="label" style="font-size: 9px; margin-bottom: 6px;">Resumen del calendario completo</div>
+                        <table style="width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; font-size: 8.5px;">
+                            <tr>
+                                <td style="padding: 3px; border-bottom: 0.5px solid var(--rule);"><strong>Índice</strong></td>
+                                <td style="padding: 3px; border-bottom: 0.5px solid var(--rule);">Abr</td>
+                                <td style="padding: 3px; border-bottom: 0.5px solid var(--rule);">May</td>
+                                <td style="padding: 3px; border-bottom: 0.5px solid var(--rule);">Jun</td>
+                                <td style="padding: 3px; border-bottom: 0.5px solid var(--rule);">Jul</td>
+                                <td style="padding: 3px; border-bottom: 0.5px solid var(--rule);">Ago</td>
+                                <td style="padding: 3px; border-bottom: 0.5px solid var(--rule);">Sep</td>
+                            </tr>
+                            <tr><td style="padding: 3px;">NDVI</td><td style="padding: 3px;"><span class="cal-marker cal-half"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-half"></span></td></tr>
+                            <tr><td style="padding: 3px;">NDMI</td><td style="padding: 3px;"><span class="cal-marker cal-empty"></span></td><td style="padding: 3px;"><span class="cal-marker cal-half"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-half"></span></td></tr>
+                            <tr><td style="padding: 3px;">NDRE</td><td style="padding: 3px;"><span class="cal-marker cal-empty"></span></td><td style="padding: 3px;"><span class="cal-marker cal-empty"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-half"></span></td></tr>
+                            <tr><td style="padding: 3px;">CIre</td><td style="padding: 3px;"><span class="cal-marker cal-empty"></span></td><td style="padding: 3px;"><span class="cal-marker cal-empty"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-full"></span></td><td style="padding: 3px;"><span class="cal-marker cal-half"></span></td><td style="padding: 3px;"><span class="cal-marker cal-empty"></span></td></tr>
+                        </table>
+                    </div>
+
+                    <div style="margin-top: 8px; font-size: 9px; color: var(--ink-soft);">
+                        <span class="cal-marker cal-full"></span> Máxima utilidad ·
+                        <span class="cal-marker cal-half"></span> Utilidad media ·
+                        <span class="cal-marker cal-empty"></span> Fuera de temporada útil
+                    </div>
+                </div>
             </div>
 
             <div style="margin-top: 40px; padding: 30px; border: 1px solid var(--ocher); text-align: center; background: var(--paper-deep);">
@@ -477,7 +547,7 @@
         </div>
         <div class="footer">
             <div>GeoArga · Documentación Técnica</div>
-            <div>Fin de Informe</div>
+            <div>Guía metodológica</div>
         </div>
     </div>
 
