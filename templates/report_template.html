@@ -82,7 +82,8 @@
         .kicker { font-family: 'Inter', sans-serif; font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 4px; }
         
         /* Grid & Cards */
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
         
         /* Contenedores de imagen */
         .img-atlas {
@@ -147,6 +148,11 @@
                 #d9cccb 0%, #f2f2f2 15%, #ccf2f2 30%, 
                 #99d9e6 45%, #66b2d9 60%, #3380bf 80%, 
                 #0d4080 100%);
+        }
+        .legend-chlorophyll {
+            background: linear-gradient(to top, 
+                #ffffcc 0%, #d9f0a3 25%, #addd8e 50%, 
+                #78c679 75%, #238443 100%);
         }
 
         .index-row {
@@ -350,6 +356,19 @@
                             <tr><td><div class="label">VALOR MEDIO</div><div class="val">{{ p.stats.ndmi.mean }}</div></td></tr>
                             <tr><td><div class="label">VALOR MÁXIMO</div><div class="val">{{ p.stats.ndmi.max }}</div></td></tr>
                             <tr><td><div class="label">VALOR MÍNIMO</div><div class="val">{{ p.stats.ndmi.min }}</div></td></tr>
+                        </table>
+                    </div>
+
+                    <!-- CLOROFILA -->
+                    <div class="index-row">
+                        <div class="index-container">
+                            <div class="img-sat"><img src="{{ p.indices.clorofila }}"><div class="caption">Clorofila (CABO)</div></div>
+                            <div class="legend-vertical legend-chlorophyll"><span>MAX</span><span>5.0</span><span>2.5</span><span>0</span></div>
+                        </div>
+                        <table class="index-data-table">
+                            <tr><td class="label">VALOR MEDIO</td><td class="val">{{ p.stats.chl.mean if p.stats.chl else 'N/D' }}</td></tr>
+                            <tr><td class="label">VALOR MÁXIMO</td><td class="val">{{ p.stats.chl.max if p.stats.chl else 'N/D' }}</td></tr>
+                            <tr><td class="label">VALOR MÍNIMO</td><td class="val">{{ p.stats.chl.min if p.stats.chl else 'N/D' }}</td></tr>
                         </table>
                     </div>
                 </div>

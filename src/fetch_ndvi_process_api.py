@@ -161,10 +161,11 @@ PROCESS_INDEX_CHOICES = (
     "bsi",
     "scl",
     "truecolor",
+    "chl",
 )
 
 # Índices que van al JSON con --informe-mensual (tabla resumen mensual típica bodega)
-INFORME_INDICES_ESTADISTICAS = ("ndvi", "ndre", "ndmi")
+INFORME_INDICES_ESTADISTICAS = ("ndvi", "ndre", "ndmi", "chl")
 
 CRS84_URN = "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
 EPSG_3857_URN = "http://www.opengis.net/def/crs/EPSG/0/3857"
@@ -502,6 +503,19 @@ def _ramp_moisture(v: str) -> str:
 """
 
 
+def _ramp_chlorophyll(v: str) -> str:
+    """Fragmento JS: colorea el índice de Clorofila Verde (CIg) en [0, ~6]."""
+    return f"""
+  let v = {v};
+  if (v < 0.5) return [1.0, 1.0, 0.8]; // Muy bajo (Amarillo claro)
+  if (v < 1.5) return [0.85, 0.94, 0.64]; // Bajo
+  if (v < 2.5) return [0.68, 0.87, 0.56]; // Medio-Bajo
+  if (v < 3.5) return [0.47, 0.78, 0.47]; // Medio-Alto
+  if (v < 4.5) return [0.25, 0.64, 0.38]; // Alto
+  return [0.09, 0.45, 0.27];              // Muy alto (Verde bosque profundo)
+"""
+
+
 EVALSCRIPT_TRUECOLOR = r"""
 //VERSION=3
 function setup() {
@@ -620,6 +634,24 @@ function evaluatePixel(sample) {
 """
 )
 
+EVALSCRIPT_CHL_RGB = (
+    r"""
+//VERSION=3
+function setup() {
+  return {
+    input: [{ bands: ["B03", "B08"], units: "REFLECTANCE" }],
+    output: { id: "default", bands: 3 },
+  };
+}
+function evaluatePixel(sample) {
+  let cig = sample.B03 === 0 ? 0 : (sample.B08 / sample.B03) - 1.0;
+"""
+    + _ramp_chlorophyll("cig")
+    + r"""
+}
+"""
+)
+
 
 EVALSCRIPT_BSI_RGB = r"""
 //VERSION=3
@@ -688,6 +720,8 @@ def get_process_evalscript(index: str, style: str) -> str:
         return EVALSCRIPT_BSI_RGB
     if index == "scl":
         return EVALSCRIPT_SCL_RGB
+    if index == "chl":
+        return EVALSCRIPT_CHL_RGB
     raise ValueError(index)
 
 
@@ -748,7 +782,25 @@ function evaluatePixel(sample) {
   let dm = sample.dataMask;
   let L = sample.B08 + 6.0 * sample.B04 - 7.5 * sample.B02 + 1.0;
   let v = L === 0 ? 0 : 2.5 * (sample.B08 - sample.B04) / L;
-  return { index: [v], dataMask: [dm * (Math.abs(L) > 1e-6 ? 1 : 0)] };
+  return { index: [v], dataMask: [dm * (L > 0 ? 1 : 0)] };
+}
+"""
+    if index == "chl":
+        return r"""
+//VERSION=3
+function setup() {
+  return {
+    input: [{ bands: ["B03", "B08", "dataMask"], units: "REFLECTANCE" }],
+    output: [
+      { id: "index", bands: 1, sampleType: "FLOAT32" },
+      { id: "dataMask", bands: 1 },
+    ],
+  };
+}
+function evaluatePixel(sample) {
+  let dm = sample.dataMask;
+  let v = sample.B03 === 0 ? 0 : (sample.B08 / sample.B03) - 1.0;
+  return { index: [v], dataMask: [dm * (sample.B03 > 0 ? 1 : 0)] };
 }
 """
     if index == "ndmi":

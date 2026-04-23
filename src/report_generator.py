@@ -27,6 +27,7 @@ print(f"--- Usando archivo de entrada: {GEOJSON_FILE.name} ---")
 WMS_PNOA = "https://www.ign.es/wms-inspire/pnoa-ma"
 WMS_CATASTRO = "https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx"
 WMS_TOPO = "https://www.ign.es/wms-inspire/ign-base"
+WMS_MDT = "https://www.ign.es/wms-inspire/mdt" # Para pendientes y relieve
 
 def get_wms_image(bbox, layer, service_url, filename, crs="EPSG:4326", width=1800, height=1200, output_dir=None):
     """Descarga una imagen de un servicio WMS con reintentos para mayor robustez."""
@@ -255,7 +256,7 @@ def main():
             "--geojson-feature-index", str(i),
             "--id", p_id,
             "--preset", "bodegas",
-            "--index", "ndvi", "ndre", "ndmi",
+            "--index", "ndvi", "ndre", "ndmi", "chl",
             "--informe-mensual",
             "--stats-json", str(stats_file),
             "--from-date", "2025-10-01T00:00:00Z",
@@ -287,7 +288,7 @@ def main():
             if stats_file.exists():
                 with open(stats_file, 'r') as f:
                     sd = json.load(f)
-                    for ix in ["ndvi", "ndre", "ndmi"]:
+                    for ix in ["ndvi", "ndre", "ndmi", "chl"]:
                         stats_summary[ix] = {"mean": "N/D", "min": "N/D", "max": "N/D"}
                         if ix in sd['clients'][p_id]:
                             intervals = sd['clients'][p_id][ix]['data']
@@ -324,7 +325,8 @@ def main():
             "indices": {
                 "ndvi": resolve_img("path_ndvi", RASTER_OUT / f"{p_id}_ndvi.png"),
                 "ndre": resolve_img("path_ndre", RASTER_OUT / f"{p_id}_ndre.png"),
-                "ndmi": resolve_img("path_ndmi", RASTER_OUT / f"{p_id}_ndmi.png")
+                "ndmi": resolve_img("path_ndmi", RASTER_OUT / f"{p_id}_ndmi.png"),
+                "clorofila": resolve_img("path_chl", RASTER_OUT / f"{p_id}_chl.png")
             },
             "chart": f"file://{chart_path.absolute()}",
             "dictamen": "Óptimo", "tendencia": "Estable",
