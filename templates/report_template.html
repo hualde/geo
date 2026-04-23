@@ -73,7 +73,7 @@
             margin-left: 45mm;
             margin-right: 12mm;
             padding-top: 25px;
-            padding-bottom: 25px;
+            padding-bottom: 42px; /* Reserva extra para evitar solape con footer */
         }
 
         /* Typography */
@@ -159,14 +159,14 @@
             display: grid;
             grid-template-columns: 240px 1fr;
             gap: 20px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             align-items: center;
             border-bottom: 0.5px solid var(--rule);
-            padding-bottom: 4px;
+            padding-bottom: 3px;
         }
         .index-row:last-child { border-bottom: none; }
 
-        .index-container { display: flex; gap: 4px; align-items: stretch; height: 135px; }
+        .index-container { display: flex; gap: 4px; align-items: stretch; height: 126px; }
         
         .img-atlas {
             position: relative;
@@ -181,7 +181,7 @@
             position: relative;
             border: 0.5px solid var(--ink);
             background: transparent;
-            height: 135px;
+            height: 126px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -220,10 +220,15 @@
             color: var(--ink-soft);
         }
         .page-dark .footer { border-top-color: rgba(236,227,208,0.2); color: rgba(236,227,208,0.5); }
-        .atlas-table td { padding: 10px 8px; vertical-align: top; border-right: 0.5px solid var(--rule); }
+        .atlas-table {
+            width: 86%;
+            margin: 0 auto;
+            table-layout: fixed;
+        }
+        .atlas-table td { padding: 10px 8px; vertical-align: top; border-right: 0.5px solid var(--rule); text-align: center; }
         .atlas-table td:last-child { border-right: none; }
-        .atlas-table .label { font-family: 'Inter', sans-serif; font-size: 7px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 3px; }
-        .atlas-table .val { font-size: 15px; font-style: italic; }
+        .atlas-table .label { font-family: 'Inter', sans-serif; font-size: 7px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 3px; text-align: center; }
+        .atlas-table .val { font-size: 15px; font-style: italic; text-align: center; }
 
         .index-data-table {
             width: 100%;
@@ -236,8 +241,20 @@
             border-bottom: 0.5px solid var(--rule);
         }
         .index-data-table tr:last-child td { border-bottom: none; }
-        .index-data-table .label { font-size: 7px; color: var(--ink-soft); }
-        .index-data-table .val { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; }
+        .index-data-table .label {
+            width: 65%;
+            font-size: 7px;
+            color: var(--ink-soft);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+        .index-data-table .val {
+            width: 35%;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+        }
 
         .dictamen-card { border: 1px solid var(--ink); padding: 15px; border-radius: 4px; background: var(--paper-deep); }
 
@@ -323,47 +340,47 @@
                     <!-- NDVI -->
                     <div class="index-row">
                         <div class="index-container">
-                            <div class="img-sat"><img src="{{ p.indices.ndvi }}"><div class="caption">Vigor (NDVI)</div></div>
-                            <div class="legend-vertical legend-vigor"><span>0.9</span><span>0.5</span><span>0.1</span><span>0</span></div>
+                            <div class="img-sat"><img src="{{ p.indices.ndvi }}"><div class="caption">Vigor (NDVI, índice adim.)</div></div>
+                            <div class="legend-vertical legend-vigor"><span>0.50</span><span>0.10</span><span>0.00</span><span>-0.50</span></div>
                         </div>
                         <table class="index-data-table">
-                            <tr><td><div class="label">VALOR MEDIO</div><div class="val">{{ p.stats.ndvi.mean }}</div></td></tr>
-                            <tr><td><div class="label">VALOR MÁXIMO</div><div class="val">{{ p.stats.ndvi.max }}</div></td></tr>
-                            <tr><td><div class="label">VALOR MÍNIMO</div><div class="val">{{ p.stats.ndvi.min }}</div></td></tr>
+                            <tr><td class="label">VALOR MEDIO</td><td class="val">{{ p.stats.ndvi.mean }}</td></tr>
+                            <tr><td class="label">VALOR MÁXIMO</td><td class="val">{{ p.stats.ndvi.max }}</td></tr>
+                            <tr><td class="label">VALOR MÍNIMO</td><td class="val">{{ p.stats.ndvi.min }}</td></tr>
                         </table>
                     </div>
 
                     <!-- NDRE -->
                     <div class="index-row">
                         <div class="index-container">
-                            <div class="img-sat"><img src="{{ p.indices.ndre }}"><div class="caption">Vigor (NDRE)</div></div>
-                            <div class="legend-vertical legend-vigor"><span>0.9</span><span>0.5</span><span>0.1</span><span>0</span></div>
+                            <div class="img-sat"><img src="{{ p.indices.ndre }}"><div class="caption">Vigor (NDRE, índice adim.)</div></div>
+                            <div class="legend-vertical legend-vigor"><span>0.50</span><span>0.10</span><span>0.00</span><span>-0.50</span></div>
                         </div>
                         <table class="index-data-table">
-                            <tr><td><div class="label">VALOR MEDIO</div><div class="val">{{ p.stats.ndre.mean }}</div></td></tr>
-                            <tr><td><div class="label">VALOR MÁXIMO</div><div class="val">{{ p.stats.ndre.max }}</div></td></tr>
-                            <tr><td><div class="label">VALOR MÍNIMO</div><div class="val">{{ p.stats.ndre.min }}</div></td></tr>
+                            <tr><td class="label">VALOR MEDIO</td><td class="val">{{ p.stats.ndre.mean }}</td></tr>
+                            <tr><td class="label">VALOR MÁXIMO</td><td class="val">{{ p.stats.ndre.max }}</td></tr>
+                            <tr><td class="label">VALOR MÍNIMO</td><td class="val">{{ p.stats.ndre.min }}</td></tr>
                         </table>
                     </div>
 
                     <!-- NDMI -->
                     <div class="index-row">
                         <div class="index-container">
-                            <div class="img-sat"><img src="{{ p.indices.ndmi }}"><div class="caption">Humedad (NDMI)</div></div>
-                            <div class="legend-vertical legend-moisture"><span>0.4</span><span>0.2</span><span>0.0</span><span>-0.1</span></div>
+                            <div class="img-sat"><img src="{{ p.indices.ndmi }}"><div class="caption">Humedad (NDMI, índice adim.)</div></div>
+                            <div class="legend-vertical legend-moisture"><span>0.25</span><span>0.10</span><span>0.00</span><span>-0.10</span></div>
                         </div>
                         <table class="index-data-table">
-                            <tr><td><div class="label">VALOR MEDIO</div><div class="val">{{ p.stats.ndmi.mean }}</div></td></tr>
-                            <tr><td><div class="label">VALOR MÁXIMO</div><div class="val">{{ p.stats.ndmi.max }}</div></td></tr>
-                            <tr><td><div class="label">VALOR MÍNIMO</div><div class="val">{{ p.stats.ndmi.min }}</div></td></tr>
+                            <tr><td class="label">VALOR MEDIO</td><td class="val">{{ p.stats.ndmi.mean }}</td></tr>
+                            <tr><td class="label">VALOR MÁXIMO</td><td class="val">{{ p.stats.ndmi.max }}</td></tr>
+                            <tr><td class="label">VALOR MÍNIMO</td><td class="val">{{ p.stats.ndmi.min }}</td></tr>
                         </table>
                     </div>
 
                     <!-- CLOROFILA -->
                     <div class="index-row">
                         <div class="index-container">
-                            <div class="img-sat"><img src="{{ p.indices.clorofila }}"><div class="caption">Clorofila (CABO)</div></div>
-                            <div class="legend-vertical legend-chlorophyll"><span>MAX</span><span>5.0</span><span>2.5</span><span>0</span></div>
+                            <div class="img-sat"><img src="{{ p.indices.clorofila }}"><div class="caption">Clorofila (CIg, índice adim.)</div></div>
+                            <div class="legend-vertical legend-chlorophyll"><span>4.5</span><span>2.5</span><span>1.5</span><span>0.5</span></div>
                         </div>
                         <table class="index-data-table">
                             <tr><td class="label">VALOR MEDIO</td><td class="val">{{ p.stats.chl.mean if p.stats.chl else 'N/D' }}</td></tr>
@@ -397,7 +414,6 @@
                 <h2>Evolución de la Campaña</h2>
                 <div class="img-atlas" style="margin-top: 15px;">
                     <img src="{{ p.chart }}" style="height: 300px; object-fit: contain;">
-                    <div class="caption">Evolución de Índices MMXXV</div>
                 </div>
             </section>
 

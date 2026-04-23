@@ -4,6 +4,8 @@ import subprocess
 import math
 import requests
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from matplotlib.ticker import FuncFormatter
 from datetime import datetime, timedelta
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
@@ -162,28 +164,67 @@ def generate_multi_index_chart(stats_file, parcel_id, output_dir):
     plt.figure(figsize=(10, 5), dpi=100)
     
     # Paleta ATLAS
-    colors = {'ndvi': '#4a5a2a', 'ndre': '#a8772a', 'ndmi': '#6a1f1f'}
+    colors = {'ndvi': '#4a5a2a', 'ndre': '#a8772a', 'ndmi': '#6a1f1f', 'chl': '#2f7d32'}
     paper_color = '#ece3d0'
     ink_color = '#1f1e16'
-    
+    month_abbr_es = {
+        1: "ene", 2: "feb", 3: "mar", 4: "abr", 5: "may", 6: "jun",
+        7: "jul", 8: "ago", 9: "sep", 10: "oct", 11: "nov", 12: "dic"
+    }
+
+    def format_month_es(x, _):
+        dt = mdates.num2date(x)
+        return f"{month_abbr_es.get(dt.month, '')}-{str(dt.year)[-2:]}"
+
     ax = plt.gca()
+    ax2 = ax.twinx()
     ax.set_facecolor(paper_color)
     plt.gcf().set_facecolor(paper_color)
-    
-    for idx in ['ndvi', 'ndre', 'ndmi']:
-        if idx in client_stats:
-            data = client_stats[idx]['data']
-            dates = [datetime.strptime(e['interval']['from'][:10], '%Y-%m-%d') for e in data if 'outputs' in e]
-            values = [e['outputs']['index']['bands']['B0']['stats']['mean'] for e in data if 'outputs' in e]
-            if values:
-                plt.plot(dates, values, label=idx.upper(), color=colors[idx], linewidth=2.5, marker='o', markersize=4)
+
+    left_lines = []
+    right_lines = []
+    for idx in ['ndvi', 'ndre', 'ndmi', 'chl']:
+        if idx not in client_stats:
+            continue
+        data = client_stats[idx]['data']
+        dates = [datetime.strptime(e['interval']['from'][:10], '%Y-%m-%d') for e in data if 'outputs' in e]
+        values = [e['outputs']['index']['bands']['B0']['stats']['mean'] for e in data if 'outputs' in e]
+        if not values:
+            continue
+
+        label = "CIg" if idx == "chl" else idx.upper()
+        target_ax = ax2 if idx == "chl" else ax
+        line = target_ax.plot(
+            dates,
+            values,
+            label=label,
+            color=colors[idx],
+            linewidth=2.5,
+            marker='o',
+            markersize=4,
+        )[0]
+        if idx == "chl":
+            right_lines.append(line)
+        else:
+            left_lines.append(line)
 
     plt.title(f"EVOLUCIÓN CARTOGRÁFICA — {parcel_id}", fontsize=12, color=ink_color, pad=20, fontfamily='serif')
-    plt.legend(frameon=False, fontsize='small')
-    plt.grid(True, linestyle='--', alpha=0.3, color=ink_color)
+    ax.grid(True, linestyle='--', alpha=0.3, color=ink_color)
+    ax.xaxis.set_major_formatter(FuncFormatter(format_month_es))
+    ax.set_ylabel("")
+    ax2.set_ylabel("CIg (Clorofila)", color=colors['chl'], fontsize=9)
+    ax2.tick_params(axis='y', colors=colors['chl'])
+
+    all_lines = left_lines + right_lines
+    if all_lines:
+        all_labels = [line.get_label() for line in all_lines]
+        ax.legend(all_lines, all_labels, frameon=False, fontsize='small', loc='upper left')
     
     # Eliminar bordes innecesarios
     for spine in ax.spines.values():
+        spine.set_color(ink_color)
+        spine.set_alpha(0.2)
+    for spine in ax2.spines.values():
         spine.set_color(ink_color)
         spine.set_alpha(0.2)
         
@@ -192,6 +233,98 @@ def generate_multi_index_chart(stats_file, parcel_id, output_dir):
     plt.savefig(chart_path, facecolor=paper_color)
     plt.close()
     return chart_path
+
+
+def monthly_window_last_year():
+    """
+    Devuelve (from_date, to_date) para cubrir los 12 meses completos anteriores.
+    Ejemplo: si hoy es 2026-04-23 -> [2025-04-01, 2026-04-01).
+    """
+    today = datetime.utcnow()
+    current_month_start = datetime(today.year, today.month, 1)
+    start_year = current_month_start.year - 1
+    start_month = current_month_start.month
+    from_date = datetime(start_year, start_month, 1).strftime("%Y-%m-%dT00:00:00Z")
+    to_date = current_month_start.strftime("%Y-%m-%dT00:00:00Z")
+    return from_date, to_date
+
+
+def extract_full_stats(stats_file, parcel_id):
+    """Extrae todas las estadísticas por índice e intervalo para el reporte JSON."""
+    indices = ["ndvi", "ndre", "ndmi", "chl"]
+    full_stats = {ix: {"series": []} for ix in indices}
+
+    if not stats_file.exists():
+        return full_stats
+
+    try:
+        with open(stats_file, "r") as f:
+            sd = json.load(f)
+
+        client_data = sd.get("clients", {}).get(parcel_id, {})
+        for ix in indices:
+            ix_data = client_data.get(ix, {})
+            intervals = ix_data.get("data", [])
+            for entry in intervals:
+                if "outputs" not in entry:
+                    continue
+                stats = (
+                    entry.get("outputs", {})
+                    .get("index", {})
+                    .get("bands", {})
+                    .get("B0", {})
+                    .get("stats", {})
+                )
+                if not stats:
+                    continue
+
+                full_stats[ix]["series"].append(
+                    {
+                        "interval": entry.get("interval", {}),
+                        "stats": {
+                            "min": stats.get("min"),
+                            "max": stats.get("max"),
+                            "mean": stats.get("mean"),
+                            "stDev": stats.get("stDev"),
+                            "sampleCount": stats.get("sampleCount"),
+                            "noDataCount": stats.get("noDataCount"),
+                            "percentiles": stats.get("percentiles", {}),
+                        },
+                    }
+                )
+    except Exception:
+        return full_stats
+
+    return full_stats
+
+
+def build_monthly_real_data(full_stats):
+    """Normaliza los datos por mes para consumo directo en el JSON final."""
+    monthly = {}
+    for ix, ix_payload in full_stats.items():
+        series = ix_payload.get("series", [])
+        ix_months = []
+        for entry in series:
+            interval = entry.get("interval", {})
+            stats = entry.get("stats", {})
+            from_date = interval.get("from", "")
+            month_key = from_date[:7] if from_date else ""
+            ix_months.append(
+                {
+                    "mes": month_key,
+                    "from": interval.get("from"),
+                    "to": interval.get("to"),
+                    "mean": stats.get("mean"),
+                    "min": stats.get("min"),
+                    "max": stats.get("max"),
+                    "stDev": stats.get("stDev"),
+                    "sampleCount": stats.get("sampleCount"),
+                    "noDataCount": stats.get("noDataCount"),
+                    "percentiles": stats.get("percentiles", {}),
+                }
+            )
+        monthly[ix] = ix_months
+    return monthly
 
 def main():
     if not GEOJSON_FILE.exists(): return
@@ -202,7 +335,9 @@ def main():
     # Identificamos el mes actual para la carpeta de entrega
     mes_actual = datetime.now().strftime("%Y_%m")
     
+    report_from_date, report_to_date = monthly_window_last_year()
     parcels_data = []
+    json_parcels = []
     for i, (idx, feat) in enumerate(gdf.iterrows()):
         p_id = str(feat.get('id', f"P{i}"))
         p_nombre = str(feat.get('nombre', p_id))
@@ -258,9 +393,10 @@ def main():
             "--preset", "bodegas",
             "--index", "ndvi", "ndre", "ndmi", "chl",
             "--informe-mensual",
+            "--stats-interval", "P1M",
             "--stats-json", str(stats_file),
-            "--from-date", "2025-10-01T00:00:00Z",
-            "--to-date", "2026-04-01T00:00:00Z",
+            "--from-date", report_from_date,
+            "--to-date", report_to_date,
             "--out", str(RASTER_OUT),
             "--format", "png",
             "--style", "rgb"
@@ -284,6 +420,7 @@ def main():
         
         # Extraemos estadísticas detalladas para la tabla por índice
         stats_summary = {}
+        full_stats = {}
         try:
             if stats_file.exists():
                 with open(stats_file, 'r') as f:
@@ -301,6 +438,8 @@ def main():
                                     "max": round(s['max'], 3)
                                 }
         except: pass
+        full_stats = extract_full_stats(stats_file, p_id)
+        monthly_real_data = build_monthly_real_data(full_stats)
 
         parcels_data.append({
             "id": p_id,
@@ -334,15 +473,75 @@ def main():
             "proxima_imagen": (datetime.now() + timedelta(days=3)).strftime("%d/%m/%Y")
         })
 
+        json_parcels.append({
+            "id": p_id,
+            "nombre": p_nombre,
+            "info": {
+                "vina": props.get("vina", "N/A"),
+                "variedad": props.get("variedad", "Tinta del País"),
+                "lat": round(centroid.y, 6),
+                "lon": round(centroid.x, 6),
+            },
+            "fisiografia": {
+                "altitud": "450m",
+                "pendiente_pct": "3.2%",
+                "superficie_ha": superficie_ha,
+            },
+            "periodo": {
+                "from_date": report_from_date,
+                "to_date": report_to_date,
+            },
+            "indices": full_stats,
+            "datos_reales_ultimo_anio_mensual": monthly_real_data,
+            "assets": {
+                "wms": {
+                    "pnoa": str(img_pnoa.absolute()) if img_pnoa else "",
+                    "sigpac": str(img_sigpac.absolute()) if img_sigpac else "",
+                    "topo": str(img_topo.absolute()) if img_topo else "",
+                },
+                "raster": {
+                    "ndvi": str((RASTER_OUT / f"{p_id}_ndvi.png").absolute()),
+                    "ndre": str((RASTER_OUT / f"{p_id}_ndre.png").absolute()),
+                    "ndmi": str((RASTER_OUT / f"{p_id}_ndmi.png").absolute()),
+                    "chl": str((RASTER_OUT / f"{p_id}_chl.png").absolute()),
+                },
+                "chart": str(chart_path.absolute()),
+                "stats_file": str(stats_file.absolute()),
+            },
+            "summary_for_pdf": stats_summary,
+        })
+
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
     template = env.get_template("report_template.html")
     html_out = template.render(parcels=parcels_data, hoy=datetime.now().strftime("%d/%m/%Y"))
     
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    # El PDF también lo guardamos con la fecha para no sobreescribir el anterior
-    pdf_path = REPORTS_DIR / f"informe_{mes_actual}.pdf"
+    # PDF y JSON comparten exactamente el mismo nombre base
+    report_name = f"informe_{mes_actual}"
+    pdf_path = REPORTS_DIR / f"{report_name}.pdf"
     HTML(string=html_out, base_url=str(PROJECT_ROOT)).write_pdf(pdf_path)
+    json_report_path = REPORTS_DIR / f"{report_name}.json"
+    json_report = {
+        "report_id": report_name,
+        "generated_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "source": {
+            "satellite": "Sentinel-2",
+            "indices": ["ndvi", "ndre", "ndmi", "chl"],
+            "stats_provider": "Sentinel Hub Statistical API",
+            "raster_provider": "Sentinel Hub Process API",
+        },
+        "geojson_input": str(GEOJSON_FILE),
+        "periodo": {
+            "from_date": report_from_date,
+            "to_date": report_to_date,
+            "stats_interval": "P1M",
+        },
+        "parcels": json_parcels,
+    }
+    with open(json_report_path, "w", encoding="utf-8") as f:
+        json.dump(json_report, f, indent=2, ensure_ascii=False)
     print(f"Informe generado en: {pdf_path}")
+    print(f"JSON generado en: {json_report_path}")
 
 if __name__ == "__main__":
     main()
