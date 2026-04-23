@@ -116,6 +116,42 @@ def run_sentinel_api(feature_index, parcel_id, from_date, to_date):
     subprocess.run(cmd, capture_output=True)
     return stats_file
 
+def overlay_geometry(image_path, geometry, bbox, output_path):
+    """Dibuja la linde de la parcela sobre una imagen existente."""
+    if not image_path or not os.path.exists(image_path): return None
+    
+    import matplotlib.image as mpimg
+    img = mpimg.imread(image_path)
+    
+    fig, ax = plt.subplots(figsize=(12, 8), dpi=150)
+    # Mostramos la imagen ajustada al BBOX
+    ax.imshow(img, extent=[bbox[0], bbox[2], bbox[1], bbox[3]])
+    
+    # Dibujamos la linde (Burdeos ATLAS con borde blanco para contraste)
+    from shapely.geometry import shape
+    if hasattr(geometry, '__geo_interface__'):
+        poly = geometry
+    else:
+        poly = shape(geometry)
+        
+    line_color = '#6B1D23' # Burdeos ATLAS (Granate oscuro)
+    if poly.geom_type == 'Polygon':
+        x, y = poly.exterior.xy
+        ax.plot(x, y, color='white', linewidth=8.0, alpha=0.4) # Halo para contraste
+        ax.plot(x, y, color=line_color, linewidth=6.0)
+    elif poly.geom_type == 'MultiPolygon':
+        for part in poly.geoms:
+            x, y = part.exterior.xy
+            ax.plot(x, y, color='white', linewidth=8.0, alpha=0.4)
+            ax.plot(x, y, color=line_color, linewidth=6.0)
+
+    ax.set_axis_off()
+    plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+    plt.margins(0,0)
+    plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
+    plt.close()
+    return output_path
+
 def generate_multi_index_chart(stats_file, parcel_id, output_dir):
     """Genera gráfica con la paleta de colores ATLAS."""
     with open(stats_file, 'r') as f:
@@ -181,23 +217,35 @@ def main():
         
         parcel = feat['geometry']
         
-        # LOCALIZACIÓN (Cálculo de BBOX dinámico)
+        # LOCALIZACIÓN (Cálculo de BBOX dinámico con proporción 3:2)
         min_lon, min_lat, max_lon, max_lat = parcel.bounds
-        width = max_lon - min_lon
-        height = max_lat - min_lat
+        center_lon, center_lat = (min_lon + max_lon) / 2, (min_lat + max_lat) / 2
+        width, height = max_lon - min_lon, max_lat - min_lat
         
-        # Margen medio para PNOA y Catastro (25%)
-        m25_x, m25_y = max(width * 0.25, 0.001), max(height * 0.25, 0.001)
-        bbox_mid = [min_lon - m25_x, min_lat - m25_y, max_lon + m25_x, max_lat + m25_y]
+        # Queremos un ratio de 1.5 (1800/1200)
+        target_ratio = 1.5
+        current_ratio = width / height if height > 0 else 1
         
-        # Margen muy amplio para Topográfico (300%) para ver el entorno real
-        m300_x, m300_y = max(width * 3.0, 0.01), max(height * 3.0, 0.01)
-        bbox_wide = [min_lon - m300_x, min_lat - m300_y, max_lon + m300_x, max_lat + m300_y]
+        if current_ratio > target_ratio:
+            view_w = width * 1.5 
+            view_h = view_w / target_ratio
+        else:
+            view_h = height * 1.5
+            view_w = view_h * target_ratio
+            
+        bbox_mid = [center_lon - view_w/2, center_lat - view_h/2, center_lon + view_w/2, center_lat + view_h/2]
         
-        # Descarga con rutas organizadas
+        # Para el topo, alejamos la vista 6 veces
+        view_w_wide, view_h_wide = view_w * 6, view_h * 6
+        bbox_wide = [center_lon - view_w_wide/2, center_lat - view_h_wide/2, center_lon + view_w_wide/2, center_lat + view_h_wide/2]
+        
+        # Descarga
         img_pnoa = get_wms_image(bbox_mid, "OI.OrthoimageCoverage", WMS_PNOA, f"pnoa_{p_id}_{mes_actual}.png", output_dir=WMS_OUT)
-        img_catastro = get_wms_image(bbox_mid, "PARCELA,SUBPARCE", WMS_CATASTRO, f"catastro_{p_id}_{mes_actual}.png", output_dir=WMS_OUT)
         img_topo = get_wms_image(bbox_wide, "IGNBaseTodo", WMS_TOPO, f"topo_{p_id}_{mes_actual}.png", output_dir=WMS_OUT)
+        
+        # Foto de límites (Overlay)
+        path_overlay = WMS_OUT / f"overlay_{p_id}_{mes_actual}.png"
+        img_sigpac = overlay_geometry(img_pnoa, parcel, bbox_mid, path_overlay)
         
         # SATÉLITE
         stats_file = RASTER_OUT / f"stats_{p_id}_{mes_actual}.json"
@@ -270,7 +318,7 @@ def main():
             },
             "wms": {
                 "pnoa": f"file://{img_pnoa.absolute()}" if img_pnoa else "",
-                "sigpac": f"file://{img_catastro.absolute()}" if img_catastro else "",
+                "sigpac": f"file://{img_sigpac.absolute()}" if img_sigpac else "",
                 "topo": f"file://{img_topo.absolute()}" if img_topo else ""
             },
             "indices": {
