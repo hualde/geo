@@ -25,10 +25,12 @@ print(f"--- Usando archivo de entrada: {GEOJSON_FILE.name} ---")
 
 # URLs de servicios WMS (España)
 WMS_PNOA = "https://www.ign.es/wms-inspire/pnoa-ma"
-WMS_SIGPAC = "https://wms.mapama.gob.es/sigpac/wms"
+WMS_CATASTRO = "https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx"
+WMS_TOPO = "https://www.ign.es/wms-inspire/ign-base"
 
 def get_wms_image(bbox, layer, service_url, filename, crs="EPSG:4326", width=1800, height=1200, output_dir=None):
-    """Descarga una imagen de un servicio WMS con alta resolución."""
+    """Descarga una imagen de un servicio WMS con reintentos para mayor robustez."""
+    import time
     target_dir = output_dir if output_dir else WMS_DIR
     target_dir.mkdir(parents=True, exist_ok=True)
     out_path = target_dir / filename
@@ -38,28 +40,47 @@ def get_wms_image(bbox, layer, service_url, filename, crs="EPSG:4326", width=180
     
     params = {
         "service": "WMS",
-        "version": "1.3.0",
+        "version": "1.1.1", # Cambiamos a 1.1.1 para mayor compatibilidad
         "request": "GetMap",
         "layers": layer,
         "styles": "",
-        "crs": crs,
-        "bbox": bbox_str,
+        "srs": crs,
+        "bbox": f"{bbox[0]},{bbox[1]},{bbox[2]},{bbox[3]}", # Lon, Lat (Orden estándar 1.1.1)
         "width": width,
         "height": height,
         "format": "image/png",
         "transparent": "TRUE"
     }
     
-    try:
-        response = requests.get(service_url, params=params, timeout=30)
-        if response.status_code == 200:
-            with open(out_path, "wb") as f:
-                f.write(response.content)
-            return out_path
-        else:
-            print(f"!!! Fallo WMS {layer}: {response.status_code}")
-    except Exception as e:
-        print(f"Error WMS ({layer}): {e}")
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(service_url, params=params, timeout=45)
+            if response.status_code == 200:
+                # Verificamos que no sea un XML de error disfrazado de PNG
+                content_start = response.content[:500]
+                if b"ServiceException" in content_start or b"<?xml" in content_start:
+                    print(f"!!! Error WMS en {layer} (intento {attempt+1}): Respuesta no es imagen")
+                    # Si falla en 1.1.1, probamos 1.3.0 con cambio de ejes como último recurso
+                    if attempt == 0:
+                        params["version"] = "1.3.0"
+                        params["crs"] = crs
+                        del params["srs"]
+                        params["bbox"] = f"{bbox[1]},{bbox[0]},{bbox[3]},{bbox[2]}"
+                else:
+                    with open(out_path, "wb") as f:
+                        f.write(response.content)
+                    return out_path
+            
+            print(f"!!! Intento {attempt+1} fallido WMS {layer}: {response.status_code}")
+            if response.status_code in [502, 503, 504]:
+                time.sleep(2 * (attempt + 1)) # Espera progresiva
+            else:
+                break # Si es error 404 o similar, no reintentar
+        except Exception as e:
+            print(f"Error en intento {attempt+1} WMS ({layer}): {e}")
+            time.sleep(2)
+            
     return None
 
 def calculate_surface(geometry):
@@ -164,14 +185,19 @@ def main():
         min_lon, min_lat, max_lon, max_lat = parcel.bounds
         width = max_lon - min_lon
         height = max_lat - min_lat
-        margin_x = max(width * 0.1, 0.0005)
-        margin_y = max(height * 0.1, 0.0005)
-        bbox = [min_lon - margin_x, min_lat - margin_y, max_lon + margin_x, max_lat + margin_y]
+        
+        # Margen medio para PNOA y Catastro (25%)
+        m25_x, m25_y = max(width * 0.25, 0.001), max(height * 0.25, 0.001)
+        bbox_mid = [min_lon - m25_x, min_lat - m25_y, max_lon + m25_x, max_lat + m25_y]
+        
+        # Margen muy amplio para Topográfico (300%) para ver el entorno real
+        m300_x, m300_y = max(width * 3.0, 0.01), max(height * 3.0, 0.01)
+        bbox_wide = [min_lon - m300_x, min_lat - m300_y, max_lon + m300_x, max_lat + m300_y]
         
         # Descarga con rutas organizadas
-        img_pnoa = get_wms_image(bbox, "OI.OrthoimageCoverage", WMS_PNOA, f"pnoa_{p_id}_{mes_actual}.png", output_dir=WMS_OUT)
-        img_sigpac = get_wms_image(bbox, "PARCELA", WMS_SIGPAC, f"sigpac_{p_id}_{mes_actual}.png", output_dir=WMS_OUT)
-        img_topo = get_wms_image(bbox, "IGNBaseTodo", "https://www.ign.es/wms-inspire/ign-base", f"topo_{p_id}_{mes_actual}.png", output_dir=WMS_OUT)
+        img_pnoa = get_wms_image(bbox_mid, "OI.OrthoimageCoverage", WMS_PNOA, f"pnoa_{p_id}_{mes_actual}.png", output_dir=WMS_OUT)
+        img_catastro = get_wms_image(bbox_mid, "PARCELA,SUBPARCE", WMS_CATASTRO, f"catastro_{p_id}_{mes_actual}.png", output_dir=WMS_OUT)
+        img_topo = get_wms_image(bbox_wide, "IGNBaseTodo", WMS_TOPO, f"topo_{p_id}_{mes_actual}.png", output_dir=WMS_OUT)
         
         # SATÉLITE
         stats_file = RASTER_OUT / f"stats_{p_id}_{mes_actual}.json"
@@ -244,7 +270,7 @@ def main():
             },
             "wms": {
                 "pnoa": f"file://{img_pnoa.absolute()}" if img_pnoa else "",
-                "sigpac": f"file://{img_sigpac.absolute()}" if img_sigpac else "",
+                "sigpac": f"file://{img_catastro.absolute()}" if img_catastro else "",
                 "topo": f"file://{img_topo.absolute()}" if img_topo else ""
             },
             "indices": {
