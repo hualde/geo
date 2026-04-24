@@ -1,6 +1,6 @@
 {
   "report_id": "informe_2026_04",
-  "generated_at": "2026-04-24T14:58:32Z",
+  "generated_at": "2026-04-24T15:13:40Z",
   "source": {
     "satellite": "Sentinel-2",
     "indices": [
@@ -20,52 +20,51 @@
   },
   "analisis_ia": {
     "analisis_global": {
-      "diagnostico_fenologico": "Marzo 2026 corresponde al final del reposo invernal, con brotación inminente en Tinta del País. Los valores bajos de NDVI (0.12-0.27) y NDRE (0.065-0.147) son típicos de viñedo sin hojas o con inicio de actividad vegetativa. Se observa un ligero repunte en marzo respecto a febrero, indicando inicio de movilización de reservas.",
-      "comparativa_vigor": "P1 presenta el mayor vigor (NDVI medio marzo 0.268, máximo 0.569), seguido de P2 (0.211) y P0 (0.122). P0 destaca por su bajo vigor general, con NDVI máximo de 0.41 pero media muy baja, indicando heterogeneidad y zonas de bajo desarrollo. P1 muestra la mayor variabilidad espacial (stDev NDVI marzo 0.086).",
-      "estado_nutricional": "Los valores de NDRE y CHL en marzo son bajos, coherentes con la fenología. P1 tiene el mejor estado nutricional (NDRE 0.147, CHL 1.263), mientras que P0 es el más deficitario (NDRE 0.065, CHL 0.831). P2 presenta valores intermedios (NDRE 0.111, CHL 1.012). Se detecta una anomalía en P1: CHL máximo de 2.861 en marzo, muy elevado para la época, posible indicador de zonas con vigor excesivo o contaminación por cubierta vegetal.",
-      "estado_hidrico": "NDMI negativo en todas las parcelas en marzo (P0: -0.111, P1: -0.107, P2: -0.128), indicando estrés hídrico moderado. P2 es la más afectada. Los valores mejoran respecto a diciembre-enero, pero siguen siendo deficitarios. No hay datos de precipitación, pero se recomienda monitorizar la humedad del suelo previo a la brotación.",
-      "riesgos_agronomicos": "1. Bajo vigor en P0 puede limitar la producción y calidad. 2. Heterogeneidad espacial en P1 (alta desviación en NDVI y CHL) sugiere problemas de suelo o manejo. 3. Estrés hídrico invernal en todas las parcelas, especialmente P2, podría retrasar la brotación. 4. Posible exceso de vigor en zonas de P1 (CHL máximo 2.861) que requerirá control de vegetación.",
-      "recomendaciones_manejo": "Realizar análisis de suelo en P0 para identificar carencias nutricionales y planificar abonado de fondo. En P1, aplicar viticultura de precisión: delimitar zonas de alto vigor (CHL>2) para ajustar riego y fertilización, evitando excesos. En P2, priorizar labores de conservación de humedad (cubiertas vegetales controladas o mulching). Monitorear la brotación para ajustar el riego de apoyo si la primavera es seca.",
-      "perspectiva_calidad": "La calidad potencial es moderada. P1, con mayor vigor, podría producir uvas con menor concentración fenólica si no se controla el exceso vegetativo. P0, con bajo vigor, podría dar uvas más concentradas pero con rendimientos bajos. P2 ofrece un equilibrio. El estrés hídrico actual, si se mantiene controlado, puede favorecer la calidad. Se recomienda seguimiento con índices de vegetación durante el ciclo."
+      "diagnostico_fenologico": "Marzo 2026 corresponde al final del reposo invernal en el hemisferio norte. Las vides se encuentran en estado de yema dormida, próximas al inicio del llanto y brotación. Los valores bajos de NDVI (0.12-0.27) y NDRE (0.065-0.147) son coherentes con la ausencia de follaje activo.",
+      "comparativa_vigor": "Parcela 1 presenta el mayor vigor invernal (NDVI medio 0.268), seguida de Parcela 2 (0.211) y Parcela 0 (0.122). La Parcela 0 destaca por su bajo NDVI y alta heterogeneidad (stDev 0.049), indicando posible suelo desnudo o cubierta vegetal irregular.",
+      "estado_nutricional": "Los valores de NDRE y CHL en marzo son bajos, reflejando la ausencia de clorofila activa. Parcela 1 muestra NDRE 0.147 y CHL 1.263, superiores a Parcela 2 (NDRE 0.111, CHL 1.012) y Parcela 0 (NDRE 0.065, CHL 0.831). Esto sugiere un mejor estado nutricional residual en Parcela 1.",
+      "estado_hidrico": "NDMI negativo en todas las parcelas (P0: -0.111, P1: -0.107, P2: -0.128), indicando baja humedad en el dosel y suelo, típico del invierno. Parcela 2 presenta el NDMI más bajo, señal de mayor estrés hídrico invernal.",
+      "riesgos_agronomicos": "1. Bajo vigor en Parcela 0 (NDVI 0.122) con alta variabilidad espacial, posible suelo desnudo o problemas de establecimiento. 2. Estrés hídrico invernal en Parcela 2 (NDMI -0.128) que podría retrasar la brotación. 3. Heterogeneidad en Parcela 1 (stDev NDVI 0.086) que requiere manejo diferenciado.",
+      "recomendaciones_manejo": "Realizar análisis de suelo en Parcela 0 para evaluar fertilidad y estructura. En Parcela 2, considerar riego de apoyo pre-brotación si las reservas hídricas son insuficientes. En Parcela 1, monitorizar la brotación para ajustar la poda en función del vigor. Aplicar fertilización nitrogenada de base en todas las parcelas según análisis foliar previo.",
+      "perspectiva_calidad": "Las condiciones invernales no permiten evaluar calidad de cosecha. El vigor moderado de Parcela 1 y 2 sugiere potencial para una vendimia equilibrada si las condiciones primaverales son favorables. Parcela 0 requerirá atención especial para alcanzar un desarrollo adecuado."
     },
     "parcelas": {
       "P0": {
-        "dictamen": "Bajo vigor general, heterogeneidad con zonas de vigor medio-alto.",
-        "tendencia": "Estable en reposo, ligero repunte en marzo.",
-        "recomendacion": "Realizar análisis de suelo y enmiendas orgánicas para mejorar la fertilidad. En zonas con NDVI>0.3 (marzo), considerar ajuste de carga. Monitorear brotación para detectar posibles fallos.",
-        "diagnostico_fenologico": "Reposo invernal, brotación inminente. NDVI medio 0.122, máximo 0.41 indica zonas con actividad temprana.",
-        "estado_nutricional": "Deficitario: NDRE 0.065, CHL 0.831. Requiere aportes nitrogenados controlados en pre-brotación.",
-        "estado_hidrico": "Estrés hídrico moderado: NDMI -0.111. Mejora respecto a febrero (-0.161).",
+        "dictamen": "Bajo vigor invernal con alta heterogeneidad espacial.",
+        "tendencia": "Estable pero con valores muy bajos respecto a otras parcelas.",
+        "recomendacion": "Realizar análisis de suelo para detectar carencias. Considerar enmiendas orgánicas y corrección de pH si es necesario. Evaluar la necesidad de resiembra de cubierta vegetal o reposición de marras. Aplicar fertilización nitrogenada de base ajustada a la baja demanda.",
+        "diagnostico_fenologico": "Reposo invernal, próximo a brotación. NDVI 0.122 indica baja actividad vegetativa.",
+        "estado_nutricional": "NDRE 0.065 y CHL 0.831, los más bajos del conjunto, reflejando bajo contenido de clorofila residual.",
+        "estado_hidrico": "NDMI -0.111, estrés hídrico moderado pero dentro de lo esperado para invierno.",
         "riesgos": [
-          "Bajo vigor limita producción",
-          "Heterogeneidad espacial",
-          "Estrés hídrico invernal"
+          "Bajo vigor generalizado",
+          "Alta heterogeneidad espacial",
+          "Posible suelo desnudo o problemas de establecimiento"
         ]
       },
       "P1": {
-        "dictamen": "Vigor medio-alto, alta variabilidad espacial.",
-        "tendencia": "Repunte significativo en marzo (NDVI 0.268), el más alto del conjunto.",
-        "recomendacion": "Delimitar zonas de alto vigor (NDVI>0.4, CHL>2) para aplicar riego y fertilización diferencial. Controlar cubierta vegetal para evitar competencia. Evaluar posible exceso de vigor que afecte a la calidad.",
-        "diagnostico_fenologico": "Reposo invernal, brotación inminente. NDVI medio 0.268, máximo 0.569 indica brotación adelantada en algunas zonas.",
-        "estado_nutricional": "Bueno: NDRE 0.147, CHL 1.263. Zonas con CHL>2.8 indican posible exceso nitrogenado o vegetación adventicia.",
-        "estado_hidrico": "Estrés hídrico moderado: NDMI -0.107. Mejora respecto a meses anteriores.",
+        "dictamen": "Vigor invernal medio-alto con buena homogeneidad relativa.",
+        "tendencia": "Estable, con valores superiores a la media del conjunto.",
+        "recomendacion": "Mantener manejo actual. Monitorizar la brotación para ajustar la poda en función del vigor. Aplicar fertilización nitrogenada de base según análisis foliar. Considerar un aclareo de racimos si el vigor es excesivo en primavera.",
+        "diagnostico_fenologico": "Reposo invernal, próximo a brotación. NDVI 0.268 indica buena reserva de biomasa.",
+        "estado_nutricional": "NDRE 0.147 y CHL 1.263, los más altos, indicando buen estado nutricional residual.",
+        "estado_hidrico": "NDMI -0.107, estrés hídrico moderado, similar a la media.",
         "riesgos": [
-          "Exceso de vigor en zonas",
-          "Heterogeneidad espacial alta",
-          "Posible competencia por agua"
+          "Heterogeneidad espacial moderada (stDev NDVI 0.086)",
+          "Posible exceso de vigor si las condiciones primaverales son húmedas"
         ]
       },
       "P2": {
-        "dictamen": "Vigor medio, homogéneo, estrés hídrico más acusado.",
-        "tendencia": "Estable, ligero repunte en marzo (NDVI 0.211).",
-        "recomendacion": "Priorizar conservación de humedad: mantener cubiertas vegetales o realizar acolchado. Monitorear brotación y preparar riego de apoyo si la primavera es seca. Ajustar carga para equilibrar vigor.",
-        "diagnostico_fenologico": "Reposo invernal, brotación inminente. NDVI medio 0.211, máximo 0.282, homogéneo.",
-        "estado_nutricional": "Moderado: NDRE 0.111, CHL 1.012. Valores adecuados para la época.",
-        "estado_hidrico": "Estrés hídrico moderado-alto: NDMI -0.128, el más negativo del conjunto.",
+        "dictamen": "Vigor invernal medio-bajo con estrés hídrico más acusado.",
+        "tendencia": "Estable, con valores intermedios entre P0 y P1.",
+        "recomendacion": "Evaluar la disponibilidad de agua en el suelo. Considerar riego de apoyo pre-brotación si las reservas son insuficientes. Aplicar fertilización nitrogenada de base. Realizar un seguimiento de la brotación para detectar posibles retrasos.",
+        "diagnostico_fenologico": "Reposo invernal, próximo a brotación. NDVI 0.211 indica vigor moderado.",
+        "estado_nutricional": "NDRE 0.111 y CHL 1.012, valores intermedios, adecuados para la época.",
+        "estado_hidrico": "NDMI -0.128, el más bajo del conjunto, indicando mayor estrés hídrico invernal.",
         "riesgos": [
-          "Estrés hídrico más severo",
-          "Posible retraso en brotación",
-          "Bajo vigor relativo"
+          "Estrés hídrico invernal",
+          "Posible retraso en la brotación",
+          "Heterogeneidad baja pero a monitorizar"
         ]
       }
     }
@@ -73,9 +72,9 @@
   "parcels": [
     {
       "id": "P0",
-      "nombre": "P0",
+      "nombre": "Parcela 0",
       "info": {
-        "vina": "N/A",
+        "vina": "Parcela 0",
         "variedad": "Tinta del País",
         "lat": 42.164756,
         "lon": -1.903664
@@ -2029,9 +2028,9 @@
     },
     {
       "id": "P1",
-      "nombre": "P1",
+      "nombre": "Parcela 1",
       "info": {
-        "vina": "N/A",
+        "vina": "Parcela 1",
         "variedad": "Tinta del País",
         "lat": 42.167138,
         "lon": -1.909947
@@ -3985,9 +3984,9 @@
     },
     {
       "id": "P2",
-      "nombre": "P2",
+      "nombre": "Parcela 2",
       "info": {
-        "vina": "N/A",
+        "vina": "Parcela 2",
         "variedad": "Tinta del País",
         "lat": 42.167248,
         "lon": -1.909407

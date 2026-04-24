@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.ticker import FuncFormatter
 from datetime import datetime, timedelta
+import re
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from weasyprint import HTML
@@ -28,6 +29,28 @@ load_dotenv(ENV_FILE)
 def log_step(message):
     """Log de progreso visible en terminal."""
     print(f"[report] {message}", flush=True)
+
+
+def parse_parcel_names_from_env():
+    """
+    Lee nombres de parcelas desde REPORT_PARCEL_NAMES.
+    Formato: "Parcela Norte,Parcela Sur,Parcela Este"
+    """
+    raw = os.environ.get("REPORT_PARCEL_NAMES", "").strip()
+    if not raw:
+        return []
+    return [name.strip() for name in raw.split(",") if name.strip()]
+
+
+def parse_grape_varieties_from_env():
+    """
+    Lee variedades desde REPORT_GRAPE_VARIETIES.
+    Formato: "Tempranillo,Garnacha,Albillo"
+    """
+    raw = os.environ.get("REPORT_GRAPE_VARIETIES", "").strip()
+    if not raw:
+        return []
+    return [name.strip() for name in raw.split(",") if name.strip()]
 
 # Buscamos el primer geojson en la carpeta de entrada, si no existe usamos el demo
 geojson_files = list(INPUT_DIR.glob("*.geojson"))
@@ -494,6 +517,9 @@ def main():
     
     report_from_date, report_to_date = monthly_window_last_year()
     cover_brand = os.environ.get("REPORT_COVER_BRAND", "Bodega Ejemplo").strip() or "Bodega Ejemplo"
+    env_parcel_names = parse_parcel_names_from_env()
+    env_grape_varieties = parse_grape_varieties_from_env()
+    default_grape_variety = os.environ.get("REPORT_DEFAULT_GRAPE_VARIETY", "Tinta del País").strip() or "Tinta del País"
     parts = cover_brand.split(maxsplit=1)
     cover_brand_primary = parts[0]
     cover_brand_secondary = parts[1] if len(parts) > 1 else ""
@@ -502,6 +528,14 @@ def main():
     for i, (idx, feat) in enumerate(gdf.iterrows()):
         p_id = str(feat.get('id', f"P{i}"))
         p_nombre = str(feat.get('nombre', p_id))
+        if i < len(env_parcel_names):
+            p_nombre = env_parcel_names[i]
+        # Si no hay nombre explícito y el ID es P<n>, mostrar "Parcela n"
+        if p_nombre == p_id and re.fullmatch(r"P\d+", p_id):
+            p_nombre = f"Parcela {p_id[1:]}"
+        p_variedad = str(feat.get("variedad", default_grape_variety))
+        if i < len(env_grape_varieties):
+            p_variedad = env_grape_varieties[i]
         props = feat.to_dict() # Para compatibilidad con el resto del script
         
         # Nueva estructura de carpetas: assets/entregas/ID_CLIENTE/2025_04/
@@ -612,11 +646,12 @@ def main():
 
         parcels_data.append({
             "id": p_id,
+            "id_display": p_nombre,
             "stats": stats_summary,
             "info": {
-                "nombre": props.get("nombre", p_id),
-                "vina": props.get("vina", "N/A"),
-                "variedad": props.get("variedad", "Tinta del País"),
+                "nombre": p_nombre,
+                "vina": p_nombre,
+                "variedad": p_variedad,
                 "lat": round(centroid.y, 6),
                 "lon": round(centroid.x, 6)
             },
@@ -646,8 +681,8 @@ def main():
             "id": p_id,
             "nombre": p_nombre,
             "info": {
-                "vina": props.get("vina", "N/A"),
-                "variedad": props.get("variedad", "Tinta del País"),
+                "vina": p_nombre,
+                "variedad": p_variedad,
                 "lat": round(centroid.y, 6),
                 "lon": round(centroid.x, 6),
             },

@@ -398,7 +398,7 @@
         <div class="content">
             <div class="parcel-header">
                 <div class="name">{{ p.info.nombre }}</div>
-                <div class="id">PARCELA ID: {{ p.id }} — Datos Generales</div>
+                <div class="id">PARCELA: {{ p.id_display if p.id_display else p.id }} — Datos Generales</div>
             </div>
             <!-- 1. DATOS GENERALES -->
             <section style="margin-bottom: 40px;">
@@ -498,7 +498,7 @@
         <div class="content">
             <div class="parcel-header">
                 <div class="name">{{ p.info.nombre }}</div>
-                <div class="id">PARCELA ID: {{ p.id }} — Análisis</div>
+                <div class="id">PARCELA: {{ p.id_display if p.id_display else p.id }} — Análisis</div>
             </div>
             <!-- 3. ANÁLISIS TEMPORAL -->
             <section style="margin-bottom: 40px;">
