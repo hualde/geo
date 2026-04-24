@@ -3,6 +3,7 @@ geopandas
 jinja2
 matplotlib
 oauthlib
+openai
 pandas
 python-dotenv
 rasterio

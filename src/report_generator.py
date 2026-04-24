@@ -11,6 +11,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from weasyprint import HTML
 from dotenv import load_dotenv
+from openai import OpenAI
 
 # Configuración de rutas
 SRC_DIR = Path(__file__).resolve().parent
@@ -22,6 +23,11 @@ REPORTS_DIR = PROJECT_ROOT / "reports"
 ASSETS_DIR = PROJECT_ROOT / "assets"
 ENV_FILE = SRC_DIR / ".env"
 load_dotenv(ENV_FILE)
+
+
+def log_step(message):
+    """Log de progreso visible en terminal."""
+    print(f"[report] {message}", flush=True)
 
 # Buscamos el primer geojson en la carpeta de entrada, si no existe usamos el demo
 geojson_files = list(INPUT_DIR.glob("*.geojson"))
@@ -334,13 +340,26 @@ def build_ai_dataset(parcels_json, report_from_date, report_to_date):
     """Prepara un dataset compacto (pero completo) para el análisis de IA."""
     ai_parcels = []
     for p in parcels_json:
+        monthly = p.get("datos_reales_ultimo_anio_mensual", {})
+        compact_monthly = {}
+        for ix, rows in monthly.items():
+            compact_monthly[ix] = [
+                {
+                    "mes": r.get("mes"),
+                    "mean": r.get("mean"),
+                    "min": r.get("min"),
+                    "max": r.get("max"),
+                    "stDev": r.get("stDev"),
+                }
+                for r in rows
+            ]
         ai_parcels.append(
             {
                 "id": p.get("id"),
                 "nombre": p.get("nombre"),
                 "info": p.get("info", {}),
                 "fisiografia": p.get("fisiografia", {}),
-                "datos_reales_ultimo_anio_mensual": p.get("datos_reales_ultimo_anio_mensual", {}),
+                "datos_reales_ultimo_anio_mensual": compact_monthly,
                 "summary_for_pdf": p.get("summary_for_pdf", {}),
             }
         )
@@ -359,13 +378,23 @@ def enrich_with_openai_analysis(parcels_data, ai_dataset):
     Completa dictamen/tendencia/recomendacion usando OpenAI.
     Si falta credencial o falla la API, mantiene los valores existentes.
     """
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = (
+        os.environ.get("DEEPSEEK_API_KEY", "").strip()
+        or os.environ.get("OPENAI_API_KEY", "").strip()
+    )
+    ai_enabled = os.environ.get("OPENAI_ENABLE", "true").strip().lower() in ("1", "true", "yes", "y")
+    if not ai_enabled:
+        log_step("OPENAI_ENABLE=false; se omite análisis IA.")
+        return None
     if not api_key:
-        print("Aviso: OPENAI_API_KEY no definida; se usan textos locales por defecto.")
+        log_step("OPENAI_API_KEY no definida; se usan textos locales por defecto.")
         return None
 
     model = os.environ.get("OPENAI_MODEL", "gpt-4.1-mini")
-    base_url = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+    base_url = os.environ.get("OPENAI_BASE_URL", "https://api.deepseek.com/v1").rstrip("/")
+    connect_timeout = float(os.environ.get("OPENAI_CONNECT_TIMEOUT", "10"))
+    read_timeout = float(os.environ.get("OPENAI_READ_TIMEOUT", "35"))
+    thinking_enabled = os.environ.get("OPENAI_THINKING", "false").strip().lower() in ("1", "true", "yes", "y")
     prompt = (
         "Eres un enólogo y viticultor especializado en viticultura de precisión con amplia experiencia "
         "en Denominaciones de Origen españolas. Voy a proporcionarte datos de teledetección satelital "
@@ -416,32 +445,30 @@ def enrich_with_openai_analysis(parcels_data, ai_dataset):
         f"{json.dumps(ai_dataset, ensure_ascii=False)}"
     )
 
-    payload = {
-        "model": model,
-        "response_format": {"type": "json_object"},
-        "messages": [
-            {"role": "system", "content": "Eres un agrónomo experto en viticultura de precisión."},
-            {"role": "user", "content": prompt},
-        ],
-        "temperature": 0.2,
-    }
-
     try:
-        response = requests.post(
-            f"{base_url}/chat/completions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            },
-            json=payload,
-            timeout=90,
+        log_step(f"Solicitando análisis IA a {base_url} con modelo {model}...")
+        client = OpenAI(
+            api_key=api_key,
+            base_url=base_url,
+            timeout=read_timeout,
+            max_retries=2,
         )
-        response.raise_for_status()
-        data = response.json()
-        raw = data["choices"][0]["message"]["content"]
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "Eres un agrónomo experto en viticultura de precisión."},
+                {"role": "user", "content": prompt},
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.2,
+            stream=False,
+            extra_body={"thinking": {"type": "enabled" if thinking_enabled else "disabled"}},
+        )
+        raw = response.choices[0].message.content
         parsed = json.loads(raw)
+        log_step("Análisis IA recibido correctamente.")
     except Exception as e:
-        print(f"Aviso: no se pudo obtener análisis OpenAI ({e}). Se mantienen textos locales.")
+        log_step(f"No se pudo obtener análisis IA ({e}). Se mantienen textos locales.")
         return None
 
     by_parcel = parsed.get("parcelas", {})
@@ -457,6 +484,7 @@ def enrich_with_openai_analysis(parcels_data, ai_dataset):
 
 def main():
     if not GEOJSON_FILE.exists(): return
+    log_step(f"Iniciando generación de informe para {GEOJSON_FILE.name}")
 
     import geopandas as gpd
     gdf = gpd.read_file(GEOJSON_FILE)
@@ -465,6 +493,10 @@ def main():
     mes_actual = datetime.now().strftime("%Y_%m")
     
     report_from_date, report_to_date = monthly_window_last_year()
+    cover_brand = os.environ.get("REPORT_COVER_BRAND", "Bodega Ejemplo").strip() or "Bodega Ejemplo"
+    parts = cover_brand.split(maxsplit=1)
+    cover_brand_primary = parts[0]
+    cover_brand_secondary = parts[1] if len(parts) > 1 else ""
     parcels_data = []
     json_parcels = []
     for i, (idx, feat) in enumerate(gdf.iterrows()):
@@ -505,6 +537,7 @@ def main():
         bbox_wide = [center_lon - view_w_wide/2, center_lat - view_h_wide/2, center_lon + view_w_wide/2, center_lat + view_h_wide/2]
         
         # Descarga
+        log_step(f"[{p_id}] Descargando cartografía base WMS...")
         img_pnoa = get_wms_image(bbox_mid, "OI.OrthoimageCoverage", WMS_PNOA, f"pnoa_{p_id}_{mes_actual}.png", output_dir=WMS_OUT)
         img_topo = get_wms_image(bbox_wide, "IGNBaseTodo", WMS_TOPO, f"topo_{p_id}_{mes_actual}.png", output_dir=WMS_OUT)
         
@@ -513,6 +546,7 @@ def main():
         img_sigpac = overlay_geometry(img_pnoa, parcel, bbox_mid, path_overlay)
         
         # SATÉLITE
+        log_step(f"[{p_id}] Solicitando índices y estadísticas Sentinel...")
         stats_file = RASTER_OUT / f"stats_{p_id}_{mes_actual}.json"
         cmd = [
             "python3", str(SRC_DIR / "fetch_ndvi_process_api.py"),
@@ -530,8 +564,14 @@ def main():
             "--format", "png",
             "--style", "rgb"
         ]
-        subprocess.run(cmd, capture_output=True)
+        try:
+            sentinel_run = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            if sentinel_run.returncode != 0:
+                log_step(f"[{p_id}] Sentinel devolvió código {sentinel_run.returncode}.")
+        except subprocess.TimeoutExpired:
+            log_step(f"[{p_id}] Timeout en Sentinel (>300s). Se continúa con datos disponibles.")
         
+        log_step(f"[{p_id}] Generando gráfica temporal...")
         chart_path = generate_multi_index_chart(stats_file, p_id, CHARTS_OUT)
 
         # FUNCIÓN AUXILIAR PARA RESOLVER RUTAS
@@ -641,16 +681,24 @@ def main():
         })
 
     ai_dataset = build_ai_dataset(json_parcels, report_from_date, report_to_date)
+    log_step("Preparando análisis IA de sección 4...")
     ai_analysis = enrich_with_openai_analysis(parcels_data, ai_dataset)
 
     env = Environment(loader=FileSystemLoader(str(TEMPLATES_DIR)))
     template = env.get_template("report_template.html")
-    html_out = template.render(parcels=parcels_data, hoy=datetime.now().strftime("%d/%m/%Y"))
+    html_out = template.render(
+        parcels=parcels_data,
+        hoy=datetime.now().strftime("%d/%m/%Y"),
+        cover_brand=cover_brand,
+        cover_brand_primary=cover_brand_primary,
+        cover_brand_secondary=cover_brand_secondary,
+    )
     
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     # PDF y JSON comparten exactamente el mismo nombre base
     report_name = f"informe_{mes_actual}"
     pdf_path = REPORTS_DIR / f"{report_name}.pdf"
+    log_step(f"Renderizando PDF: {pdf_path.name}")
     HTML(string=html_out, base_url=str(PROJECT_ROOT)).write_pdf(pdf_path)
     json_report_path = REPORTS_DIR / f"{report_name}.json"
     json_report = {
@@ -673,8 +721,8 @@ def main():
     }
     with open(json_report_path, "w", encoding="utf-8") as f:
         json.dump(json_report, f, indent=2, ensure_ascii=False)
-    print(f"Informe generado en: {pdf_path}")
-    print(f"JSON generado en: {json_report_path}")
+    log_step(f"Informe generado en: {pdf_path}")
+    log_step(f"JSON generado en: {json_report_path}")
 
 if __name__ == "__main__":
     main()

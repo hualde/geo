@@ -39,6 +39,49 @@
             color: var(--paper);
         }
 
+        .cover-bg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.7;
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(168,119,42,0.18), transparent 55%),
+                radial-gradient(ellipse at 80% 70%, rgba(74,90,42,0.16), transparent 60%),
+                repeating-linear-gradient(
+                    -14deg,
+                    transparent 0px,
+                    transparent 28px,
+                    rgba(168,119,42,0.14) 29px,
+                    transparent 30px
+                );
+        }
+        .cover-illustration {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.55;
+        }
+
+        .cover-wordmark {
+            margin-top: 14px;
+            margin-bottom: 14px;
+        }
+        .cover-wordmark .line-1 {
+            font-size: 118px;
+            line-height: 0.86;
+            letter-spacing: -2px;
+            color: var(--paper);
+            font-style: normal;
+        }
+        .cover-wordmark .line-2 {
+            font-size: 118px;
+            line-height: 0.86;
+            letter-spacing: -2px;
+            color: var(--ocher);
+            font-style: italic;
+        }
+
         /* Side Rail */
         .side-rail {
             position: absolute;
@@ -257,6 +300,19 @@
         }
 
         .dictamen-card { border: 1px solid var(--ink); padding: 15px; border-radius: 4px; background: var(--paper-deep); }
+        .dictamen-card .label {
+            font-family: 'Inter', sans-serif;
+            font-size: 8px;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            margin-bottom: 6px;
+        }
+        .dictamen-card .val {
+            font-size: 26px;
+            line-height: 1.05;
+            font-weight: 700;
+        }
 
         .cal-marker {
             display: inline-block;
@@ -287,23 +343,48 @@
 
     <!-- PORTADA -->
     <div class="page page-dark">
+        <div class="cover-bg"></div>
+        <svg class="cover-illustration" viewBox="0 0 800 1120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <!-- Curvas topográficas -->
+            <path d="M-20 130 C120 90, 220 180, 360 140 C500 100, 620 170, 820 120" fill="none" stroke="#a8772a" stroke-width="1.2"/>
+            <path d="M-20 210 C120 170, 220 260, 360 220 C500 180, 620 250, 820 200" fill="none" stroke="#a8772a" stroke-width="1.1"/>
+            <path d="M-20 300 C120 260, 220 350, 360 310 C500 270, 620 340, 820 290" fill="none" stroke="#a8772a" stroke-width="1"/>
+            <path d="M-20 390 C120 350, 220 440, 360 400 C500 360, 620 430, 820 380" fill="none" stroke="#a8772a" stroke-width="1"/>
+            <path d="M-20 480 C120 440, 220 530, 360 490 C500 450, 620 520, 820 470" fill="none" stroke="#a8772a" stroke-width="0.9"/>
+            <path d="M-20 570 C120 530, 220 620, 360 580 C500 540, 620 610, 820 560" fill="none" stroke="#a8772a" stroke-width="0.9"/>
+            <path d="M-20 660 C120 620, 220 710, 360 670 C500 630, 620 700, 820 650" fill="none" stroke="#a8772a" stroke-width="0.8"/>
+            <path d="M-20 750 C120 710, 220 800, 360 760 C500 720, 620 790, 820 740" fill="none" stroke="#a8772a" stroke-width="0.8"/>
+            <!-- Polígonos tipo parcelas -->
+            <polygon points="180,370 330,335 405,455 380,610 265,650 170,565" fill="#4a5a2a" opacity="0.42" stroke="#ece3d0" stroke-width="1"/>
+            <polygon points="460,405 590,365 645,485 620,600 505,635 440,525" fill="#a8772a" opacity="0.35" stroke="#ece3d0" stroke-width="1"/>
+            <polygon points="250,680 430,640 530,730 510,860 350,905 220,835" fill="#6a1f1f" opacity="0.32" stroke="#ece3d0" stroke-width="1"/>
+        </svg>
         <div class="side-rail">
             <div class="vertical-text">GeoArga · Atlas de viñedos</div>
             <div class="page-num">01</div>
         </div>
-        <div class="content" style="height: 85%; display: flex; flex-direction: column; justify-content: space-between; padding-top: 80px;">
+        <div class="content" style="position: relative; z-index: 2; height: 85%; display: flex; flex-direction: column; justify-content: space-between; padding-top: 80px;">
             <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; border-bottom: 0.5px solid rgba(236,227,208,0.25); padding-bottom: 10px; font-family: 'Inter', sans-serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(236,227,208,0.7);">
+                    <span>Volumen 01</span>
+                    <span>Copernicus Sentinel-2 L2A</span>
+                </div>
                 <div class="kicker" style="color: var(--ocher);">Informe Técnico Premium</div>
-                <h1>Atlas de<br><span style="color: var(--ocher); font-style: italic;">Parcelas</span></h1>
-                <div style="margin-top: 40px; font-size: 24px; font-style: italic;">Preparado para Cliente: test.geojson</div>
+                <div class="cover-wordmark">
+                    <div class="line-1">{{ cover_brand_primary }}</div>
+                    {% if cover_brand_secondary %}
+                    <div class="line-2">{{ cover_brand_secondary }}</div>
+                    {% endif %}
+                </div>
+                <div style="margin-top: 40px; font-size: 24px; font-style: italic;">Informe satelital</div>
             </div>
             <div style="border-top: 0.5px solid rgba(236,227,208,0.3); padding-top: 20px; font-size: 11px;">
-                Campaña MMXXV | Copernicus Sentinel-2 L2A | {{ hoy }}
+                Campaña MMXXVI | Monitorización multiespectral de precisión | {{ hoy }}
             </div>
         </div>
         <div class="footer">
             <div>GeoArga · Atlas de Parcelas</div>
-            <div>Confidencial · Cliente: test.geojson</div>
+            <div>Confidencial · Dossier técnico vitícola</div>
         </div>
     </div>
 
@@ -433,10 +514,10 @@
                 <div class="kicker">4 — Interpretación y Recomendaciones</div>
                 <h2>Dictamen Técnico</h2>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
-                    <div class="dictamen-card"><div class="label">ESTADO ACTUAL</div><div class="val" style="color: var(--olive); font-size: 24px; font-weight: bold;">{{ p.dictamen }}</div></div>
-                    <div class="dictamen-card"><div class="label">TENDENCIA</div><div class="val" style="color: var(--wine); font-size: 24px; font-weight: bold;">{{ p.tendencia }}</div></div>
+                    <div class="dictamen-card"><div class="label">ESTADO ACTUAL</div><div class="val" style="color: var(--olive);">{{ p.dictamen }}</div></div>
+                    <div class="dictamen-card"><div class="label">TENDENCIA</div><div class="val" style="color: var(--wine);">{{ p.tendencia }}</div></div>
                 </div>
-                <div style="margin-top: 20px; font-size: 18px; line-height: 1.6; font-style: italic; background: var(--paper-deep); padding: 25px; border-radius: 4px;">
+                <div style="margin-top: 20px; font-size: 16px; line-height: 1.6; font-style: italic; background: var(--paper-deep); padding: 25px; border-radius: 4px;">
                     {{ p.recomendacion }}
                 </div>
             </section>
